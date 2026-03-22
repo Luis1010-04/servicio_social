@@ -5,6 +5,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\UnidadesMedida;
 use App\Http\Controllers\comandos;
+use App\Http\Controllers\Compartidos\ConfiguracionController;
+use App\Http\Controllers\Compartidos\NotificacionesController;
+use App\Http\Controllers\Compartidos\PerfilController;
 use App\Http\Controllers\componentes;
 use App\Http\Controllers\EsclavosCatalogos;
 use App\Http\Controllers\MaestroEsclavoController;
@@ -12,7 +15,7 @@ use App\Http\Controllers\MaestrosCatalogo;
 use App\Http\Controllers\MaestrosUsuarios;
 use App\Http\Controllers\Usuarios;
 use App\Http\Controllers\reportes;
-use App\Http\Controllers\Ubicaciones;
+use App\Http\Controllers\User\UserComponenteController;
 
 // Controladores de la carpeta User
 use App\Http\Controllers\User\UserMaestroController;
@@ -33,6 +36,11 @@ Route::middleware("auth")->group(function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/pendiente', [Dashboard::class, 'pendiente'])->name('pendiente.index');
     Route::get('/reportes', [reportes::class, 'index'])->name('reportes.index');
+    // Ruta para procesar el formulario
+    Route::get('/reportes/generar', [App\Http\Controllers\Reportes::class, 'generarReporte'])->name('reportes.generar');
+
+    // Ruta para el AJAX de esclavos
+    Route::get('/api/maestros/{id}/esclavos', [App\Http\Controllers\Reportes::class, 'getEsclavosByMaestro']);
     Route::get('/comandos', [comandos::class, 'index'])->name('comandos.index');
 });
 
@@ -107,7 +115,25 @@ Route::middleware(['auth', 'web'])->prefix('mis-equipos')->as('user.')->group(fu
     // Esclavos del Usuario
     Route::resource('esclavos', UserEsclavoController::class)->except(['create']); 
     Route::get('esclavos/{id}/monitor', [UserEsclavoController::class, 'monitor'])->name('esclavos.monitor');
+    Route::get('/esclavo/{id}/ultima-lectura', [App\Http\Controllers\User\UserEsclavoController::class, 'getUltimaLectura']);
+    Route::get('/configurar-dispositivo/{serie}', [UserEsclavoController::class, 'getConfiguracion']);
 
     // Ubicaciones Privadas
     Route::resource('ubicaciones', UserUbicacionController::class);
+    
+    Route::post('/componente/{esclavoId}/controlar', [UserComponenteController::class, 'controlar'])->name('componente.controlar');
 }); 
+
+Route::middleware(['auth'])->group(function () {
+    
+    // Perfil (Lo que ya tenemos avanzado)
+    Route::get('/mi-perfil', [PerfilController::class, 'index'])->name('perfil.index');
+    Route::put('/perfil/actualizar', [PerfilController::class, 'update'])->name('perfil.update');
+    Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');
+    // Configuración (Preferencias del sistema)
+    Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
+
+    // Notificaciones (Historial de alertas)
+    Route::get('/notificaciones', [NotificacionesController::class, 'index'])->name('notificaciones.index');
+    
+});

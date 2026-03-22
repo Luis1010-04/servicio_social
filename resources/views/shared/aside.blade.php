@@ -41,7 +41,15 @@
                         </a>
                     </li>
                 @endcan
+                 
             </ul>
+             </li>
+                    <li class="nav-item">
+                <a class="nav-link" href="{{ route('reportes.index') }}">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Reportes</span>
+                </a>
+            </li>
         </li>
 
         {{-- UBICACIONES: SOLO PARA EL USUARIO --}}
@@ -77,7 +85,7 @@
                     <i class="bi bi-diagram-3"></i>
                     <span>Catálogo de Componentes</span>
                 </a>
-            </li>
+          
         @endcan
 
     </ul>

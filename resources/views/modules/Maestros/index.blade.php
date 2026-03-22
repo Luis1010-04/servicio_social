@@ -36,7 +36,6 @@
                     <th>descripción</th>
                     <th>Activo</th>
 
-                    <th>Administrar</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -55,9 +54,6 @@
                         @endif
                     </td>
                     
-                    <td> 
-                      <a href="{{route('esclavos.catalogo.show', $dato->id)}}" class="btn btn-info">Administrar</a> 
-                    </td>
                     <td>
                       <a href="{{ route('maestros.catalogo.edit', $dato->id) }}" class="btn btn-warning">
                         <i class="fa-solid fa-pencil"></i>

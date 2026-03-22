@@ -1,13 +1,13 @@
  <!-- ======= Header ======= -->
   <header id="header" class="header fixed-top d-flex align-items-center">
 
-    <div class="d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
-        <img src="{{asset('NiceAdmin/assets/img/logo.png')}}" alt="">
-        <span class="d-none d-lg-block">NiceAdmin</span>
-      </a>
-      <i class="bi bi-list toggle-sidebar-btn"></i>
-    </div><!-- End Logo -->
+  <div class="d-flex align-items-center justify-content-between">
+    <a href="{{ route('home') }}" class="logo d-flex align-items-center">
+      <img src="{{ asset('NiceAdmin/assets/img/logo.png') }}" alt="IoT Logo">
+      <span class="d-none d-lg-block">IoT Project</span>
+    </a>
+    <i class="bi bi-list toggle-sidebar-btn"></i>
+  </div><!-- End Logo -->
 
     <div class="search-bar">
       <form class="search-form d-flex align-items-center" method="POST" action="#">
@@ -169,7 +169,7 @@
         <li class="nav-item dropdown pe-3">
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="{{asset('NiceAdmin/assets/img/profile-img.jpg')}}" alt="Profile" class="rounded-circle">
+            <img src="{{ Auth::user()->imagen_url ? asset('storage/' . Auth::user()->imagen_url) : asset('NiceAdmin/assets/img/profile-img.jpg') }}" alt="Profile" class="rounded-circle">
             <span class="d-none d-md-block dropdown-toggle ps-2">{{Auth::user()->name}}</span>
           </a><!-- End Profile Iamge Icon -->
 
@@ -183,7 +183,7 @@
             </li>
 
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{route('pendiente.index')}}">
+              <a class="dropdown-item d-flex align-items-center" href="{{route('perfil.index')}}">
                 <i class="bi bi-person"></i>
                 <span>My Profile</span>
               </a>

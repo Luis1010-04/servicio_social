@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use InfluxDB2\Client;
 
 class UserEsclavoController extends Controller
 {
@@ -185,5 +186,78 @@ class UserEsclavoController extends Controller
 
         return view('modules.vistasUsuario.esclavos.create', 
             compact('titulo', 'maestros', 'catalogoEsclavos', 'ubicaciones', 'maestro_id'));
+    }
+public function getConfiguracion($serie)
+    {
+        $dispositivo = DB::table('maestros_esclavos as me')
+            ->join('maestros_usuarios as mu', 'me.maestro_id', '=', 'mu.id')
+            ->where('me.numero_serie', $serie)
+            ->select('mu.user_id', 'me.numero_serie')
+            ->first();
+
+        if (!$dispositivo) {
+            return response()->json(['error' => 'Dispositivo no vinculado'], 404);
+        }
+
+        return response()->json([
+            'mqtt_host'  => env('MQTT_HOST', '192.168.100.18'),
+            'mqtt_port'  => (int)env('MQTT_PORT', 1883),
+            'user_id'    => $dispositivo->user_id,
+            'base_topic' => "v1/usuarios/{$dispositivo->user_id}/nodos/{$dispositivo->numero_serie}/",
+            'client_id'  => "ESP32_{$dispositivo->numero_serie}",
+            'status'     => 'authorized'
+        ]);
+    }
+
+    /**
+     * Obtener datos de InfluxDB filtrados por el número de serie dinámico
+     */
+    public function getUltimaLectura($id)
+    {
+        $esclavo = DB::table('maestros_esclavos')->where('id', $id)->first();
+        if (!$esclavo) return response()->json(['error' => 'No encontrado'], 404);
+
+        $componentesMySQL = DB::table('detalle_esclavo_componentes as dec')
+            ->join('componentes as c', 'dec.componente_id', '=', 'c.id')
+            ->join('unidades_de_medida as um', 'c.unidad_id', '=', 'um.id')
+            ->select('c.nombre', 'um.nombre as unidad')
+            ->where('dec.esclavo_id', $esclavo->esclavo_id)
+            ->get();
+
+        $client = new Client([
+            "url" => env('INFLUXDB_URL'),
+            "token" => env('INFLUXDB_TOKEN'),
+            "bucket" => env('INFLUXDB_BUCKET'),
+            "org" => env('INFLUXDB_ORG')
+        ]);
+
+        $queryApi = $client->createQueryApi();
+        $fluxQuery = 'from(bucket: "' . env('INFLUXDB_BUCKET') . '")
+            |> range(start: -1h)
+            |> filter(fn: (r) => r["dispositivo"] == "' . $esclavo->numero_serie . '")
+            |> last()';
+
+        $tables = $queryApi->query($fluxQuery);
+
+        $resultado = $componentesMySQL->map(function ($comp) use ($tables) {
+            $valorInflux = null;
+            $fecha = now();
+            foreach ($tables as $table) {
+                foreach ($table->records as $record) {
+                    if ($record->getField() == $comp->nombre) {
+                        $valorInflux = $record->getValue();
+                        $fecha = $record->getTime();
+                    }
+                }
+            }
+            return [
+                'nombre' => $comp->nombre,
+                'valor' => $valorInflux ?? '--',
+                'unidad' => $comp->unidad,
+                'created_at' => $fecha
+            ];
+        });
+
+        return response()->json($resultado);
     }
 }
