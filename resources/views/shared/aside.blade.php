@@ -45,7 +45,7 @@
             </ul>
              </li>
                     <li class="nav-item">
-                <a class="nav-link" href="{{ route('reportes.index') }}">
+                <a class="nav-link" href="{{ route('user.reportes.index') }}">
                     <i class="bi bi-file-earmark-bar-graph"></i>
                     <span>Reportes</span>
                 </a>

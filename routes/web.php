@@ -14,13 +14,13 @@ use App\Http\Controllers\MaestroEsclavoController;
 use App\Http\Controllers\MaestrosCatalogo;
 use App\Http\Controllers\MaestrosUsuarios;
 use App\Http\Controllers\Usuarios;
-use App\Http\Controllers\reportes;
 use App\Http\Controllers\User\UserComponenteController;
 
 // Controladores de la carpeta User
 use App\Http\Controllers\User\UserMaestroController;
 use App\Http\Controllers\User\UserEsclavoController;
 use App\Http\Controllers\User\UserUbicacionController;
+use App\Http\Controllers\User\ReportesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,12 +35,9 @@ Route::middleware("auth")->group(function () {
     Route::get('/home', [Dashboard::class, 'index'])->name('home');
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/pendiente', [Dashboard::class, 'pendiente'])->name('pendiente.index');
-    Route::get('/reportes', [reportes::class, 'index'])->name('reportes.index');
-    // Ruta para procesar el formulario
-    Route::get('/reportes/generar', [App\Http\Controllers\Reportes::class, 'generarReporte'])->name('reportes.generar');
 
     // Ruta para el AJAX de esclavos
-    Route::get('/api/maestros/{id}/esclavos', [App\Http\Controllers\Reportes::class, 'getEsclavosByMaestro']);
+ 
     Route::get('/comandos', [comandos::class, 'index'])->name('comandos.index');
 });
 
@@ -117,8 +114,16 @@ Route::middleware(['auth', 'web'])->prefix('mis-equipos')->as('user.')->group(fu
     Route::get('esclavos/{id}/monitor', [UserEsclavoController::class, 'monitor'])->name('esclavos.monitor');
     Route::get('/esclavo/{id}/ultima-lectura', [App\Http\Controllers\User\UserEsclavoController::class, 'getUltimaLectura']);
     Route::get('/configurar-dispositivo/{serie}', [UserEsclavoController::class, 'getConfiguracion']);
+    //Rutas de reportes
+    // Rutas de reportes
+    Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes.index');
 
-    // Ubicaciones Privadas
+    // Cambiamos {maestro_id} por {id} para que coincida con el controlador
+    Route::get('/obtener-esclavos/{id}', [ReportesController::class, 'getEsclavosByMaestro'])->name('reportes.getEsclavos');
+
+    // Cambiamos 'modelo' por 'id' del esclavo para buscar en la tabla detalle_esclavo_componentes
+    Route::get('/obtener-componentes/{id}', [ReportesController::class, 'getComponentesByEsclavo'])->name('reportes.getComponentes');
+    Route::get('/generar', [ReportesController::class, 'generarReporte'])->name('reportes.generar');
     Route::resource('ubicaciones', UserUbicacionController::class);
     
     Route::post('/componente/{esclavoId}/controlar', [UserComponenteController::class, 'controlar'])->name('componente.controlar');

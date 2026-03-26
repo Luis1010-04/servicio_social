@@ -13,4 +13,8 @@ class Componente extends Model
     {
         return $this->hasMany(DetalleEsclavoComponente::class, 'componente_id');
     }
+    public function lecturas()
+{
+    return $this->hasMany(Lectura::class, 'componente_id');
+}
 }
