@@ -13,6 +13,7 @@ use App\Http\Controllers\EsclavosCatalogos;
 use App\Http\Controllers\MaestroEsclavoController;
 use App\Http\Controllers\MaestrosCatalogo;
 use App\Http\Controllers\MaestrosUsuarios;
+use App\Http\Controllers\Reportes;
 use App\Http\Controllers\Usuarios;
 use App\Http\Controllers\User\UserComponenteController;
 
@@ -21,6 +22,7 @@ use App\Http\Controllers\User\UserMaestroController;
 use App\Http\Controllers\User\UserEsclavoController;
 use App\Http\Controllers\User\UserUbicacionController;
 use App\Http\Controllers\User\ReportesController;
+use App\Http\Controllers\user\UserDashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +34,10 @@ Route::get('/', [AuthController::class, 'index'])->name('login');
 Route::post('/logear', [AuthController::class, 'logear'])->name('logear');
 
 Route::middleware("auth")->group(function () {
-    Route::get('/home', [Dashboard::class, 'index'])->name('home');
+ 
+    //Dashboard del usuario
+    Route::get('/User_home', [UserDashboard::class, 'index'])->name('user.home');
+    //Rutas extra
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/pendiente', [Dashboard::class, 'pendiente'])->name('pendiente.index');
 
@@ -47,7 +52,8 @@ Route::middleware("auth")->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'checkrol:Admin'])->group(function () {
-    
+       //Dashboard del administrador
+    Route::get('/home', [Dashboard::class, 'index'])->name('home');   
     // Usuarios
     Route::resource('users', Usuarios::class)->names('users');
     Route::get('users/cambiar-estado/{id}/{estado}', [Usuarios::class, 'estado'])->name('users.estado');
@@ -56,6 +62,25 @@ Route::middleware(['auth', 'checkrol:Admin'])->group(function () {
     // Unidades y Componentes
     Route::resource('unidades-medida', UnidadesMedida::class)->names('unidades.medida');
     Route::resource('componentes', componentes::class)->names('componentes');
+    //Reprtes del administrador
+    Route::get('/reportes_Admin', [Reportes::class, 'index'])->name('admin.reportes.index');
+    // Route::get('/get-maestros/{userId}', [Reportes::class, 'getMaestrosByUser']);
+    // Route::get('/get-esclavos/{maestroId}', [Reportes::class, 'getEsclavosByMaestro']);
+    // Route::get('/get-componentes/{esclavoId}', [Reportes::class, 'getComponentesByEsclavo']);
+    // Route::get('/generar', [Reportes::class, 'generarReporteAdmin']);
+
+    //
+     Route::prefix('admin/reportes')->group(function () {
+    // Route::get('/', [Reportes::class, 'index'])->name('admin.reportes.index');
+    Route::get('/inventario-global', [Reportes::class, 'getInventarioGlobal']);
+    Route::get('/get-maestros/{userId}', [Reportes::class, 'getMaestrosByUser']);
+    Route::get('/get-esclavos/{maestroId}', [Reportes::class, 'getEsclavosByMaestro']);
+    Route::get('/get-componentes/{esclavoId}', [Reportes::class, 'getComponentesByEsclavo']);
+    Route::get('/generar', [Reportes::class, 'generarReporteAdmin']);
+    Route::get('/kpi-usuarios', [Reportes::class, 'getUsuariosKpi']);
+    Route::get('/kpi-maestros', [Reportes::class, 'getMaestrosKpi']);
+    Route::get('/kpi-esclavos', [Reportes::class, 'getEsclavosKpi']);
+});
 
 
     // Catálogo de Maestros
@@ -79,7 +104,6 @@ Route::middleware(['auth', 'checkrol:Admin'])->group(function () {
 |--------------------------------------------------------------------------
 | Lógica de Vinculación (Maestros / Esclavos / Usuarios)
 |--------------------------------------------------------------------------
-| Estas rutas mantienen tus controladores originales funcionando.
 */
 Route::middleware('auth')->group(function () {
     // Maestros Usuarios
@@ -105,8 +129,9 @@ Route::middleware('auth')->group(function () {
 | Usamos el nombre 'user.' para no chocar con las rutas de Admin.
 */
 Route::middleware(['auth', 'web'])->prefix('mis-equipos')->as('user.')->group(function () {
+    //Ruta para el dashboard
+    Route::get('/dashboard-data', [App\Http\Controllers\User\UserDashboard::class, 'getRealTimeData'])->name('dashboard.data');
     Route::resource('maestros', UserMaestroController::class);
-    // Cambiamos el nombre aquí para que sea user.maestros.administrar
     Route::get('maestros/{id}/administrar', [UserMaestroController::class, 'administrar'])->name('maestros.administrar');
 
     // Esclavos del Usuario
@@ -118,10 +143,8 @@ Route::middleware(['auth', 'web'])->prefix('mis-equipos')->as('user.')->group(fu
     // Rutas de reportes
     Route::get('/reportes', [ReportesController::class, 'index'])->name('reportes.index');
 
-    // Cambiamos {maestro_id} por {id} para que coincida con el controlador
     Route::get('/obtener-esclavos/{id}', [ReportesController::class, 'getEsclavosByMaestro'])->name('reportes.getEsclavos');
 
-    // Cambiamos 'modelo' por 'id' del esclavo para buscar en la tabla detalle_esclavo_componentes
     Route::get('/obtener-componentes/{id}', [ReportesController::class, 'getComponentesByEsclavo'])->name('reportes.getComponentes');
     Route::get('/generar', [ReportesController::class, 'generarReporte'])->name('reportes.generar');
     Route::resource('ubicaciones', UserUbicacionController::class);
@@ -131,7 +154,7 @@ Route::middleware(['auth', 'web'])->prefix('mis-equipos')->as('user.')->group(fu
 
 Route::middleware(['auth'])->group(function () {
     
-    // Perfil (Lo que ya tenemos avanzado)
+    
     Route::get('/mi-perfil', [PerfilController::class, 'index'])->name('perfil.index');
     Route::put('/perfil/actualizar', [PerfilController::class, 'update'])->name('perfil.update');
     Route::put('/perfil/password', [PerfilController::class, 'updatePassword'])->name('perfil.password');

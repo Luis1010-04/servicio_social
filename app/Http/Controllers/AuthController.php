@@ -32,7 +32,12 @@ class AuthController extends Controller
         //Crear la sesion de usuario
         FacadesAuth::login($user);
         $request->session()->regenerate();
-        return to_route ('home');
+
+        if ($user->rol === 'Admin') {
+            return redirect()->route('home'); // Si es admin
+        } else {
+            return redirect()->route('user.home');  // Si es usuario va a 
+        }
     }
     public function crearAdmin(){
         //Crear admin

@@ -130,75 +130,155 @@ public function getComponentesByEsclavo($idRelacion)
     return response()->json($componentes);
 }
 
-public function generarReporte(Request $request)
-{
-    try {
-        $client = new \InfluxDB2\Client([
-            "url" => env('INFLUXDB_URL'),
-            "token" => env('INFLUXDB_TOKEN'),
-            "bucket" => env('INFLUXDB_BUCKET'),
-            "org" => env('INFLUXDB_ORG'),
-        ]);
+// public function generarReporte(Request $request)
+// {
+//     try {
+//         $client = new \InfluxDB2\Client([
+//             "url" => env('INFLUXDB_URL'),
+//             "token" => env('INFLUXDB_TOKEN'),
+//             "bucket" => env('INFLUXDB_BUCKET'),
+//             "org" => env('INFLUXDB_ORG'),
+//         ]);
 
-        $queryApi = $client->createQueryApi();
+//         $queryApi = $client->createQueryApi();
 
-        $start = \Carbon\Carbon::parse($request->fecha_inicio)->startOfDay()->format('Y-m-d\TH:i:s\Z');
-        $end = \Carbon\Carbon::parse($request->fecha_fin)->endOfDay()->format('Y-m-d\TH:i:s\Z');
+//         $start = \Carbon\Carbon::parse($request->fecha_inicio)->startOfDay()->format('Y-m-d\TH:i:s\Z');
+//         $end = \Carbon\Carbon::parse($request->fecha_fin)->endOfDay()->format('Y-m-d\TH:i:s\Z');
 
-        $asignacion = DB::table('maestros_esclavos')
-            ->where('id', $request->esclavo_id) 
-            ->first();
+//         $asignacion = DB::table('maestros_esclavos')
+//             ->where('id', $request->esclavo_id) 
+//             ->first();
         
 
-        if (!$asignacion) {
-            throw new \Exception("No se encontró la asignación del dispositivo.");
-        }
+//         if (!$asignacion) {
+//             throw new \Exception("No se encontró la asignación del dispositivo.");
+//         }
 
-        $tagDispositivo = $asignacion->numero_serie; 
+//         $tagDispositivo = $asignacion->numero_serie; 
 
-        $nombres = DB::table('componentes')
-            ->whereIn('id', $request->componentes)
-            ->pluck('nombre')
-            ->toArray();
+//         $nombres = DB::table('componentes')
+//             ->whereIn('id', $request->componentes)
+//             ->pluck('nombre')
+//             ->toArray();
             
-        if (empty($nombres)) {
-            throw new \Exception("No se seleccionaron sensores válidos.");
-        }
+//         if (empty($nombres)) {
+//             throw new \Exception("No se seleccionaron sensores válidos.");
+//         }
 
-        $filtrosField = collect($nombres)->map(fn($n) => 'r["_field"] == "' . trim($n) . '"')->implode(' or ');
+//         $filtrosField = collect($nombres)->map(fn($n) => 'r["_field"] == "' . trim($n) . '"')->implode(' or ');
 
-        $fluxQuery = "from(bucket: \"biobit\")
-        |> range(start: {$start}, stop: {$end})
-        |> filter(fn: (r) => r[\"dispositivo\"] == \"{$tagDispositivo}\")
-        |> filter(fn: (r) => {$filtrosField})
-        |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
-        |> yield(name: \"mean\")";
+//         $fluxQuery = "from(bucket: \"biobit\")
+//         |> range(start: {$start}, stop: {$end})
+//         |> filter(fn: (r) => r[\"dispositivo\"] == \"{$tagDispositivo}\")
+//         |> filter(fn: (r) => {$filtrosField})
+//         |> aggregateWindow(every: 1h, fn: mean, createEmpty: false)
+//         |> yield(name: \"mean\")";
 
-        Log::info("Consulta enviada:\n" . $fluxQuery);
+//         Log::info("Consulta enviada:\n" . $fluxQuery);
 
-        $records = $queryApi->query($fluxQuery);
+//         $records = $queryApi->query($fluxQuery);
         
-        $data = [];
-        foreach ($records as $table) {
-            foreach ($table->records as $record) {
-                $data[] = [
-                    '_time' => $record->getTime(),
-                    'componente' => $record->getField(),
-                    'valor' => $record->getValue(),
+//         $data = [];
+//         foreach ($records as $table) {
+//             foreach ($table->records as $record) {
+//                 $data[] = [
+//                     '_time' => $record->getTime(),
+//                     'componente' => $record->getField(),
+//                     'valor' => $record->getValue(),
 
-                    $record->getField() => $record->getValue() 
-                ];
+//                     $record->getField() => $record->getValue() 
+//                 ];
+//             }
+//         }
+
+//         return response()->json([
+//             'success' => true,
+//             'data' => $data,
+//             'debug_query' => $fluxQuery
+//         ]);
+
+//     } catch (\Exception $e) {
+//         return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+//     }
+// }
+
+    public function inventarioGlobal()
+{
+    // 1. Instanciamos InfluxDB una sola vez por petición
+    $client = new \InfluxDB2\Client([
+        "url" => env('INFLUXDB_URL'),
+        "token" => env('INFLUXDB_TOKEN'),
+        "bucket" => env('INFLUXDB_BUCKET'),
+        "org" => env('INFLUXDB_ORG'),
+    ]);
+    $queryApi = $client->createQueryApi();
+
+    // 2. Consulta MySQL Principal
+    $data = DB::table('maestros_esclavos as me')
+        ->join('maestros_usuarios as mu', 'me.maestro_id', '=', 'mu.id')
+        ->join('users as u', 'mu.user_id', '=', 'u.id')
+        ->join('esclavos_catalogo as ec', 'me.esclavo_id', '=', 'ec.id')
+        ->select(
+            'u.name as cliente',
+            'u.email',
+            'u.activo',
+            'mu.nombre as maestro',
+            'me.nombre as esclavo',
+            'me.numero_serie as serie',
+            'ec.id as ec_id', // <- CLAVE: Necesitamos el ID del Catálogo para los componentes
+            'ec.modelo'
+        )
+        ->get();
+
+    // 3. Procesamiento y cruce con InfluxDB
+    $data = $data->map(function($item) use ($queryApi) {
+        
+        // --- PARTE A: SENSORES Y ACTUADORES (Usando el Catálogo) ---
+        $componentes = DB::table('detalle_esclavo_componentes as dec')
+            ->join('componentes as c', 'dec.componente_id', '=', 'c.id')
+            ->where('dec.esclavo_id', $item->ec_id) // Cruzamos con el modelo del catálogo
+            ->select('c.tipo')
+            ->get();
+
+        // Contamos según los valores exactos de tu BD
+        $item->sensores = $componentes->where('tipo', 'Sensor')->count();
+        $item->actuadores = $componentes->where('tipo', 'Actuador')->count();
+
+        // --- PARTE B: TELEMETRÍA (InfluxDB) ---
+        $item->ultima_actividad = 'Sin datos';
+        $item->online = false;
+
+        try {
+            // Consulta Flux adaptada a tu estructura (sin measurement, tag 'dispositivo')
+            $fluxQuery = 'from(bucket: "' . env('INFLUXDB_BUCKET') . '")
+                |> range(start: -30d)
+                |> filter(fn: (r) => r["dispositivo"] == "' . $item->serie . '")
+                |> last()';
+
+            $result = $queryApi->query($fluxQuery);
+
+            if (!empty($result) && isset($result[0]->records) && count($result[0]->records) > 0) {
+                $record = $result[0]->records[0];
+                $timeString = $record->getTime(); 
+                
+                // Formateo de fecha
+                $fechaUltimoDato = Carbon::parse($timeString)->setTimezone('America/Mexico_City');
+                $item->ultima_actividad = $fechaUltimoDato->format('d/m/Y H:i:s');
+
+                // Si reportó en los últimos 5 minutos (300 seg), está ONLINE
+                if ($fechaUltimoDato->diffInSeconds(now('America/Mexico_City')) < 300) {
+                    $item->online = true;
+                }
             }
+        } catch (\Exception $e) {
+            Log::error("Error InfluxDB para esclavo {$item->serie}: " . $e->getMessage());
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $data,
-            'debug_query' => $fluxQuery
-        ]);
+        return $item;
+    });
 
-    } catch (\Exception $e) {
-        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
-    }
+    return response()->json(['data' => $data]);
 }
+
+
 }

@@ -2,9 +2,17 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
         <li class="nav-item">
-            <a class="nav-link" href="{{ route('home') }}">
+            @php
+                $rutaDashboard = (Auth::user()->rol === 'Admin') ? 'home' : 'user.home';
+                
+                $isActive = request()->routeIs('home') || request()->routeIs('user.home');
+            @endphp
+
+            <a class="nav-link {{ $isActive ? '' : 'collapsed' }}" href="{{ route($rutaDashboard) }}">
                 <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
+                <span>
+                    {{ Auth::user()->rol === 'Admin' ? 'Dashboard' : 'Dashboard' }}
+                </span>
             </a>
         </li>
 
@@ -43,11 +51,20 @@
                 @endcan
                  
             </ul>
-             </li>
-                    <li class="nav-item">
-                <a class="nav-link" href="{{ route('user.reportes.index') }}">
+             <li class="nav-item">
+                @php
+                    // CORRECCIÓN: Se agrega 'user.' al nombre de la ruta
+                    $rutaReportes = (Auth::user()->rol === 'Admin') ? 'admin.reportes.index' : 'user.reportes.index';
+                    
+                    // También corregimos el verificador de 'active' para que coincida
+                    $isReporteActive = request()->routeIs('admin.reportes.*') || request()->routeIs('user.reportes.*');
+                @endphp
+
+                <a class="nav-link {{ $isReporteActive ? '' : 'collapsed' }}" href="{{ route($rutaReportes) }}">
                     <i class="bi bi-file-earmark-bar-graph"></i>
-                    <span>Reportes</span>
+                    <span>
+                        {{ Auth::user()->rol === 'Admin' ? 'Reportes Globales' : 'Mis Reportes' }}
+                    </span>
                 </a>
             </li>
         </li>
