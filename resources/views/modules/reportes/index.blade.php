@@ -1,377 +1,309 @@
 @extends('layouts.main')
+
 @section('titulo', $titulo)
 
 @section('contenido')
-<main id="main" class="main">
-    <div class="pagetitle">
-        <h1>{{ $titulo }}</h1>
-    </div>
-
-    <section class="section">
-        <div class="row mb-4">
-            <div class="col-md-3" id="kpiUsuarios" style="cursor: pointer;">
-                <div class="card shadow-sm border-start border-primary border-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">Usuarios</h5>
-                        <h6>{{ $kpis['usuarios_activos'] }} Activos / {{ $kpis['total_usuarios'] }}</h6>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3" id="kpiMaestros" style="cursor: pointer;">
-                <div class="card shadow-sm border-start border-success border-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">Maestros</h5>
-                        <h6>{{ $kpis['total_maestros'] }} Registrados</h6>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3" id="kpiEsclavos" style="cursor: pointer;">
-                <div class="card shadow-sm border-start border-warning border-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-warning">Esclavos</h5>
-                        <h6>{{ $kpis['total_esclavos'] }} Vinculados</h6>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <button class="btn btn-dark w-100 h-100 shadow-sm" id="btnInventario">
-                    <i class="bi bi-box-seam"></i> Ver Inventario Global
-                </button>
-            </div>
+    <main id="main" class="main">
+        
+        <div class="pagetitle">
+            <h1>Panel de Control Global</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
+                    <li class="breadcrumb-item">Administración</li>
+                    <li class="breadcrumb-item active">Panel Global</li>
+                </ol>
+            </nav>
         </div>
 
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Consulta de Historial (InfluxDB)</h5>
-                <form id="formReporteAdmin" class="row g-3">
-                    @csrf
-                    <div class="col-md-4">
-                        <label class="form-label">Cliente</label>
-                        <select id="selectUsuario" class="form-select select2">
-                            <option value="">Selecciona...</option>
-                            @foreach($usuarios as $u)
-                                <option value="{{ $u->id }}">[{{ $u->rol }}] - {{ $u->name }} ({{ $u->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Maestro</label>
-                        <select id="selectMaestro" class="form-select" disabled>
-                            <option value="">Esperando usuario...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Esclavo</label>
-                        <select id="selectEsclavo" name="esclavo_id" class="form-select" disabled>
-                            <option value="">Esperando maestro...</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Inicio</label>
-                        <input type="date" name="fecha_inicio" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Fin</label>
-                        <input type="date" name="fecha_fin" class="form-control" required>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Formato</label>
-                        <select name="visual" class="form-select">
-                            <option value="tabla">Tabla de Datos</option>
-                            <option value="lineas">Gráfica de Líneas</option>
-                        </select>
-                    </div>
-                    <div class="col-12" id="contenedorComponentes" style="display:none;">
-                        <label class="form-label fw-bold">Sensores disponibles:</label>
-                        <div id="listadoCheckboxes" class="d-flex flex-wrap gap-3 p-3 border rounded bg-light"></div>
-                    </div>
-                    <div class="col-12 text-end">
-                        <button type="submit" class="btn btn-primary px-4" id="btnGenerar">
-                            <i class="bi bi-search"></i> Consultar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <section class="section dashboard">
+            <div class="row">
 
-        <div id="seccionResultados" class="mt-4" style="display:none;">
-            <div class="card">
-                <div class="card-body pt-3">
-                    <div id="contGrafica" style="display:none; height:400px;"><canvas id="canvasReporte"></canvas></div>
-                    <div id="contTabla" style="display:none;" class="table-responsive">
-                        <table class="table table-hover w-100" id="tablaInflux">
-                            <thead class="table-light"><tr><th>Fecha</th><th>Sensor</th><th>Valor</th></tr></thead>
-                            <tbody id="tbodyReporte"></tbody>
-                        </table>
+                <div class="col-xxl-3 col-md-6 mb-4">
+                    <div class="card info-card sales-card h-100 shadow-sm" style="cursor: pointer; transition: 0.3s;" onclick="abrirModal('usuarios')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
+                        <div class="card-body">
+                            <h5 class="card-title">Usuarios <span>| Registrados</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-primary text-white" style="width: 50px; height: 50px; font-size: 24px;">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="mb-0 fs-5 text-primary">Ver Listado</h6>
+                                    <span class="text-muted small pt-2 ps-1">Directorio y Estatus</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-3 col-md-6 mb-4">
+                    <div class="card info-card revenue-card h-100 shadow-sm" style="cursor: pointer; transition: 0.3s;" onclick="abrirModal('maestros')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
+                        <div class="card-body">
+                            <h5 class="card-title">Maestros <span>| Catálogo</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-success text-white" style="width: 50px; height: 50px; font-size: 24px;">
+                                    <i class="bi bi-hdd-network"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="mb-0 fs-5 text-success">Inventario</h6>
+                                    <span class="text-muted small pt-2 ps-1">Modelos Operando</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-3 col-md-6 mb-4">
+                    <div class="card info-card customers-card h-100 shadow-sm" style="cursor: pointer; transition: 0.3s;" onclick="abrirModal('esclavos')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
+                        <div class="card-body">
+                            <h5 class="card-title">Esclavos <span>| Catálogo</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-info text-white" style="width: 50px; height: 50px; font-size: 24px;">
+                                    <i class="bi bi-cpu"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="mb-0 fs-5 text-info">Inventario</h6>
+                                    <span class="text-muted small pt-2 ps-1">Modelos Operando</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xxl-3 col-md-6 mb-4">
+                    <div class="card info-card h-100 shadow-sm border border-dark" style="cursor: pointer; transition: 0.3s;" onclick="abrirModal('tabla_maestra')" onmouseover="this.classList.add('shadow')" onmouseout="this.classList.remove('shadow')">
+                        <div class="card-body bg-dark text-white rounded">
+                            <h5 class="card-title text-white">GOD VIEW <span>| Monitor</span></h5>
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center bg-white text-dark" style="width: 50px; height: 50px; font-size: 24px;">
+                                    <i class="bi bi-globe"></i>
+                                </div>
+                                <div class="ps-3">
+                                    <h6 class="mb-0 fs-5">Tabla Maestra</h6>
+                                    <span class="text-light small pt-2 ps-1">Relaciones y Telemetría</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <div class="modal fade" id="modalKpi" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title fw-bold" id="modalTitulo">Cargando...</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="table-responsive">
+                            <table id="tablaDinamica" class="table table-hover table-bordered w-100 align-middle">
+                                <thead id="tablaHead" class="table-light"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-</main>
 
-<div class="modal fade" id="modalKpiDetalles" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header text-white" id="modalKpiHeader">
-                <h5 class="modal-title" id="modalKpiTitle">Detalle</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive" id="contenedorTablaKpi"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modalInventario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white border-0">
-                <h5 class="modal-title"><i class="bi bi-box-seam me-2"></i>Infraestructura Global IoT</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body bg-light" id="contenedorInventario">
-                <div class="text-center p-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted">Sincronizando telemetría...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+    </main>
 @endsection
-
 @push('scripts')
-<script>
-const lenguajeEspanol = {
-    "emptyTable": "No hay información",
-    "info": "Mostrando _START_ a _END_ de _TOTAL_ entradas",
-    "infoEmpty": "Mostrando 0 a 0 de 0 entradas",
-    "infoFiltered": "(Filtrado de _MAX_ entradas totales)",
-    "lengthMenu": "Mostrar _MENU_ entradas",
-    "search": "Buscar:",
-    "paginate": { "first": "Primero", "last": "Último", "next": "Siguiente", "previous": "Anterior" }
-};
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
 
-// Función para KPIs simples
-function abrirModalKpi(tipo) {
-    const modalEl = document.getElementById('modalKpiDetalles');
-    const modal = new bootstrap.Modal(modalEl);
-    const titulo = document.getElementById('modalKpiTitle');
-    const header = document.getElementById('modalKpiHeader');
-    const contenedor = document.getElementById('contenedorTablaKpi');
+    <script>
+        let dataTableInstancia = null;
 
-    header.className = "modal-header text-white";
-    let url = "";
-    let htmlTabla = "";
+        // Configuración común para imprimir/exportar en DataTables
+        const dtOptionsBase = {
+            destroy: true, 
+            processing: true,
+            dom: '<"d-flex justify-content-between align-items-center mb-3"Bf>rt<"d-flex justify-content-between mt-3"ip>',
+            buttons: [
+                { extend: 'excelHtml5', className: 'btn btn-sm btn-success', text: '<i class="bi bi-file-earmark-excel"></i> Excel' },
+                { extend: 'pdfHtml5', className: 'btn btn-sm btn-danger', text: '<i class="bi bi-file-earmark-pdf"></i> PDF', orientation: 'landscape' },
+                { extend: 'print', className: 'btn btn-sm btn-secondary', text: '<i class="bi bi-printer"></i> Imprimir' }
+            ],
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json' }
+        };
 
-    if (tipo === 'usuarios') {
-        header.classList.add("bg-primary");
-        titulo.innerText = "Listado de Usuarios y Administradores";
-        url = "/admin/reportes/kpi-usuarios";
-        htmlTabla = `<table class="table w-100" id="tablaDinamicaKpi">
-            <thead><tr><th>Nombre</th><th>Usuario</th><th>Email</th><th>Rol</th><th>Estado</th></tr></thead>
-            <tbody id="bodyKpi"></tbody></table>`;
-    } else if (tipo === 'maestros') {
-        header.classList.add("bg-success");
-        titulo.innerText = "Maestros Vinculados a Clientes";
-        url = "/admin/reportes/kpi-maestros";
-        htmlTabla = `<table class="table w-100" id="tablaDinamicaKpi">
-            <thead><tr><th>Nombre Asignado</th><th>Modelo</th><th>Serie</th><th>Cliente</th></tr></thead>
-            <tbody id="bodyKpi"></tbody></table>`;
-    } else if (tipo === 'esclavos') {
-        header.classList.add("bg-warning", "text-dark");
-        titulo.innerText = "Esclavos en Red";
-        url = "/admin/reportes/kpi-esclavos";
-        htmlTabla = `<table class="table w-100" id="tablaDinamicaKpi">
-            <thead><tr><th>Nombre Red</th><th>Modelo</th><th>Serie</th><th>Maestro Padre</th><th>Cliente</th></tr></thead>
-            <tbody id="bodyKpi"></tbody></table>`;
-    }
+        function abrirModal(tipo) {
+            const modal = new bootstrap.Modal(document.getElementById('modalKpi'));
+            const modalTitulo = document.getElementById('modalTitulo');
+            
+            let url = '';
+            let columns = [];
 
-    contenedor.innerHTML = htmlTabla;
-
-    fetch(url)
-        .then(res => res.json())
-        .then(res => {
-            const body = document.getElementById('bodyKpi');
-            let filas = "";
-
-            if (tipo === 'usuarios') {
-                filas = res.data.map(u => `
-                    <tr>
-                        <td>${u.name} ${u.apellido}</td>
-                        <td>${u.usuario}</td>
-                        <td>${u.email}</td>
-                        <td><span class="badge ${u.rol === 'Admin' ? 'bg-dark' : 'bg-info text-dark'}">${u.rol}</span></td>
-                        <td><span class="badge ${u.activo ? 'bg-success' : 'bg-danger'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
-                    </tr>`).join('');
-            } else if (tipo === 'maestros') {
-                filas = res.data.map(m => `
-                    <tr>
-                        <td>${m.nombre_asignado}</td>
-                        <td>${m.modelo}</td>
-                        <td>${m.numero_serie}</td>
-                        <td>${m.cliente}</td>
-                    </tr>`).join('');
-            } else if (tipo === 'esclavos') {
-                filas = res.data.map(e => `
-                    <tr>
-                        <td>${e.nombre_vinculo}</td>
-                        <td>${e.modelo}</td>
-                        <td>${e.numero_serie}</td>
-                        <td>${e.maestro_padre}</td>
-                        <td>${e.cliente}</td>
-                    </tr>`).join('');
+            // Limpiamos la tabla anterior para evitar cruce de datos
+            if (dataTableInstancia) {
+                dataTableInstancia.clear().destroy();
+                $('#tablaDinamica').empty(); 
             }
 
-            body.innerHTML = filas;
-            if ($.fn.DataTable.isDataTable('#tablaDinamicaKpi')) {
-                $('#tablaDinamicaKpi').DataTable().destroy();
+            // Configuramos las rutas y columnas dependiendo de la tarjeta presionada
+            switch(tipo) {
+                case 'usuarios':
+                    modalTitulo.innerHTML = "<i class='bi bi-people text-primary me-2'></i> Listado General de Usuarios";
+                    url = "{{ route('admin.reportes.api.usuarios') }}";
+                    columns = [
+                        { data: 'name', title: 'Nombre de Usuario' },
+                        { data: 'email', title: 'Correo Electrónico' },
+                        { data: 'created_at', title: 'Fecha de Registro', render: data => new Date(data).toLocaleDateString() },
+                        { data: 'activo', title: 'Estatus', render: data => data ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-danger">Inactivo</span>' }
+                    ];
+                    break;
+
+                case 'maestros':
+                    modalTitulo.innerHTML = "<i class='bi bi-hdd-network text-success me-2'></i> Catálogo de Equipos Maestros";
+                    url = "{{ route('admin.reportes.api.maestros') }}";
+                    columns = [
+                        { data: 'nombre', title: 'Nombre Catálogo' },
+                        { data: 'modelo', title: 'Nombre del Modelo' },
+                        { data: 'descripcion', title: 'Descripción' },
+                        { data: 'operando', title: 'Equipos en Servicio', render: data => `<span class="badge border border-primary text-primary">${data} Operando</span>` },
+                        { data: 'created_at', title: 'Fecha Alta', render: data => new Date(data).toLocaleDateString() },
+                        { data: 'activo', title: 'Status', render: data => data ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>' }
+                    ];
+                    break;
+
+                case 'esclavos':
+                    modalTitulo.innerHTML = "<i class='bi bi-cpu text-info me-2'></i> Catálogo de Dispositivos Esclavos";
+                    url = "{{ route('admin.reportes.api.esclavos') }}";
+                    columns = [
+                        { data: 'nombre', title: 'Nombre Catálogo' },
+                        { data: 'modelo', title: 'Nombre del Modelo' },
+                        // Eliminamos la línea de descripción aquí porque no existe en BD
+                        { data: 'operando', title: 'Equipos en Servicio', render: data => `<span class="badge border border-info text-info">${data} Operando</span>` },
+                        { data: 'created_at', title: 'Fecha Alta', render: data => new Date(data).toLocaleDateString() },
+                        { data: 'activo', title: 'Status', render: data => data ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>' }
+                    ];
+                    break;
+
+                case 'tabla_maestra':
+                    modalTitulo.innerHTML = "<i class='bi bi-globe text-dark me-2'></i> God View - Relaciones y Telemetría en Vivo";
+                    url = "{{ route('admin.reportes.api.tabla_maestra') }}";
+                    columns = [
+                        { data: 'usuario', title: 'Usuario Asignado' },
+                        { data: 'nombre_maestro', title: 'Nombre Maestro' },
+                        { data: 'modelo_maestro', title: 'Modelo Maestro' },
+                        { data: 'nombre_esclavo', title: 'Nombre Esclavo' },
+                        { data: 'numero_serie', title: 'No. Serie / TAG' },
+                        { 
+                            data: 'influx_time', // <- Ahora es una propiedad formal de la tabla
+                            defaultContent: null,
+                            title: 'Último Registro (InfluxDB)',
+                            render: function(data, type, row) {
+                                if (data === 'Sin TAG') return `<span class="badge bg-secondary">Sin TAG</span>`;
+                                if (data === 'Error') return `<span class="badge bg-danger">Error de Conexión</span>`;
+                                if (data) return `<span class="badge bg-light text-dark border"><i class="bi bi-clock-history"></i> ${data}</span>`;
+                                
+                                return `<span class="badge bg-light text-dark border"><i class="bi bi-hourglass-split"></i> Buscando...</span>`;
+                            }
+                        },
+                        { 
+                            data: 'influx_status', // <- Ahora es una propiedad formal de la tabla
+                            defaultContent: null,
+                            title: 'Status Real',
+                            render: function(data, type, row) {
+                                if (data === 'Online') return '<span class="badge bg-success text-white shadow-sm"><i class="bi bi-wifi"></i> Online</span>';
+                                if (data === 'Offline') return '<span class="badge bg-danger text-white shadow-sm"><i class="bi bi-wifi-off"></i> Offline</span>';
+                                if (data === 'Error') return '<span class="badge bg-secondary text-white"><i class="bi bi-exclamation-triangle"></i> Falló</span>';
+                                if (data === 'Ignorado') return '<span class="badge bg-secondary">Ignorado</span>';
+                                
+                                return `<span class="badge bg-warning text-dark"><div class="spinner-border spinner-border-sm" role="status"></div> Analizando...</span>`;
+                            }
+                        }
+                    ];
+                    break;
             }
-            $('#tablaDinamicaKpi').DataTable({ language: lenguajeEspanol, responsive: true });
-            modal.show();
-        });
-}
 
-document.addEventListener('DOMContentLoaded', function() {
-    // Eventos KPI
-    document.getElementById('kpiUsuarios').onclick = () => abrirModalKpi('usuarios');
-    document.getElementById('kpiMaestros').onclick = () => abrirModalKpi('maestros');
-    document.getElementById('kpiEsclavos').onclick = () => abrirModalKpi('esclavos');
-
-    // REFERENCIA AL MODAL DE INVENTARIO
-    const mInvEl = document.getElementById('modalInventario');
-    const modalInv = new bootstrap.Modal(mInvEl);
-    const contenedorInv = document.getElementById('contenedorInventario');
-
-    document.getElementById('btnInventario').onclick = function() {
-        contenedorInv.innerHTML = `
-            <div class="text-center p-5">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2 text-muted">Consultando InfluxDB y MySQL...</p>
-            </div>`;
-        modalInv.show();
-
-       fetch('/admin/reportes/inventario-global')
-    .then(res => res.json())
-    .then(res => {
-        if (!res.data || res.data.length === 0) {
-            contenedorInv.innerHTML = '<div class="alert alert-info">No hay registros de infraestructura.</div>';
-            return;
-        }
-
-        // --- Estructura jerárquica ---
-        const dataAgrupada = res.data.reduce((acumulador, item) => {
-            // 1. Buscar si el cliente ya existe en el acumulador
-            let cliente = acumulador.find(c => c.email === item.email);
-            if (!cliente) {
-                cliente = { 
-                    cliente: item.cliente, 
-                    email: item.email, 
-                    activo: item.activo, 
-                    maestros: [] 
-                };
-                acumulador.push(cliente);
-            }
-
-            // 2. Buscar si el maestro ya existe dentro del cliente
-            let maestro = cliente.maestros.find(m => m.nombre === item.maestro);
-            if (!maestro) {
-                maestro = { nombre: item.maestro, esclavos: [] };
-                cliente.maestros.push(maestro);
-            }
-
-            // 3. Insertar el esclavo en el maestro correspondiente
-            maestro.esclavos.push({
-                nombre: item.esclavo,
-                serie: item.serie,
-                sensores: item.sensores || 0,
-                actuadores: item.actuadores || 0,
-                modelo: item.modelo || 'N/A',
-                ultima_actividad: item.ultima_actividad || 'Sin datos',
-                online: item.online || false
+            // Inicializamos la tabla
+            dataTableInstancia = $('#tablaDinamica').DataTable({
+                ...dtOptionsBase,
+                ajax: {
+                    url: url,
+                    type: 'GET',
+                    dataSrc: function (json) {
+                        if (json.error) {
+                            console.error("🔥 Error desde MySQL/Laravel:", json.error);
+                            alert("Ocurrió un error al cargar los datos. Revisa la consola.");
+                            return [];
+                        }
+                        return json.data || [];
+                    },
+                    error: function (xhr, error, thrown) {
+                        console.error("🔥 Error AJAX DataTables:", xhr.responseText);
+                        alert("Error de conexión. Revisa la consola.");
+                    }
+                },
+                columns: columns,
+                // CAMBIO 1: Usar drawCallback en lugar de initComplete para que funcione al paginar
+                drawCallback: function(settings) {
+                    if(tipo === 'tabla_maestra') {
+                        escanearInfluxDB();
+                    }
+                }
             });
 
-            return acumulador;
-        }, []);
+            modal.show();
+        }
 
-        contenedorInv.innerHTML = dataAgrupada.map(cliente => `
-            <div class="card shadow-sm mb-4 border-0">
-                <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center py-3">
-                    <div>
-                        <h5 class="mb-0 text-primary fw-bold">${cliente.cliente}</h5>
-                        <small class="text-muted">${cliente.email}</small>
-                    </div>
-                    <span class="badge ${cliente.activo ? 'bg-success' : 'bg-danger'} p-2">
-                        ${cliente.activo ? 'CLIENTE ACTIVO' : 'CLIENTE SUSPENDIDO'}
-                    </span>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="ps-4">Maestro / Grupo</th>
-                                    <th>Esclavo (S/N)</th>
-                                    <th>Configuración Hardware</th>
-                                    <th>Última Actividad</th>
-                                    <th class="text-center">Status Red</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${cliente.maestros.map(maestro => `
-                                    ${maestro.esclavos.map((esclavo, eIdx) => `
-                                        <tr>
-                                            ${eIdx === 0 ? `
-                                                <td rowspan="${maestro.esclavos.length}" class="ps-4 fw-bold border-end bg-light" style="width: 200px;">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="bi bi-hdd-rack me-2 text-secondary h5 mb-0"></i>
-                                                        <span>${maestro.nombre}</span>
-                                                    </div>
-                                                </td>` : ''}
-                                            <td>
-                                                <span class="fw-bold d-block">${esclavo.nombre}</span>
-                                                <code class="text-primary small">${esclavo.serie}</code>
-                                                <br><span class="badge bg-secondary" style="font-size: 0.65rem">${esclavo.modelo}</span>
-                                            </td>
-                                            <td>
-                                                <div class="small">
-                                                    <i class="bi bi-thermometer-half text-warning me-1"></i>Sensores: <b>${esclavo.sensores}</b><br>
-                                                    <i class="bi bi-toggle-on text-primary me-1"></i>Actuadores: <b>${esclavo.actuadores}</b>
-                                                </div>
-                                            </td>
-                                            <td class="small text-muted">
-                                                ${esclavo.ultima_actividad}
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="d-flex flex-column align-items-center">
-                                                    <div class="spinner-grow spinner-grow-sm ${esclavo.online ? 'text-success' : 'text-danger'}" role="status"></div>
-                                                    <span class="small fw-bold ${esclavo.online ? 'text-success' : 'text-danger'} mt-1">
-                                                        ${esclavo.online ? 'ONLINE' : 'OFFLINE'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    `).join('')}
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    })
-    .catch(err => {
+        // CAMBIO 2: Función con rastreo en consola y mejor manejo de errores HTTP
+        function escanearInfluxDB() {
+            if (!dataTableInstancia) return;
 
-        console.error("Error capturado en el frontend:", err);
-        contenedorInv.innerHTML = '<div class="alert alert-danger">Error al procesar los datos de la API. Revisa la consola.</div>';
-    });
-    };
-});
-</script>
+            // Iteramos SOLO sobre las filas visibles en la página actual de DataTables
+            dataTableInstancia.rows({ page: 'current' }).every(function () {
+                let row = this;
+                let rowData = row.data();
+                let serie = rowData.numero_serie;
+
+                // Si la fila ya tiene status (ya fue consultada), la saltamos para no gastar recursos
+                if (rowData.influx_status) return;
+
+                if (!serie || serie === 'null') {
+                    rowData.influx_time = 'Sin TAG';
+                    rowData.influx_status = 'Ignorado';
+                    row.data(rowData); // Alimenta a DataTables y actualiza la vista visualmente
+                    return;
+                }
+
+                fetch("{{ route('admin.reportes.api.influx') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ serie: serie })
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    // Le inyectamos los datos directamente a la memoria de DataTables
+                    rowData.influx_time = data.ultima_actividad;
+                    rowData.influx_status = data.online ? 'Online' : 'Offline';
+                    
+                    // Actualizamos la fila. Esto cambia el HTML automáticamente y lo deja listo para exportar/imprimir
+                    row.data(rowData); 
+                })
+                .catch(error => {
+                    console.error(`🔥 Error consultando InfluxDB para ${serie}:`, error);
+                    rowData.influx_time = 'Error';
+                    rowData.influx_status = 'Error';
+                    row.data(rowData);
+                });
+            });
+        }
+    </script>
 @endpush

@@ -13,7 +13,7 @@ use App\Http\Controllers\EsclavosCatalogos;
 use App\Http\Controllers\MaestroEsclavoController;
 use App\Http\Controllers\MaestrosCatalogo;
 use App\Http\Controllers\MaestrosUsuarios;
-use App\Http\Controllers\Reportes;
+use App\Http\Controllers\AdminReportesController;
 use App\Http\Controllers\Usuarios;
 use App\Http\Controllers\User\UserComponenteController;
 
@@ -63,25 +63,27 @@ Route::middleware(['auth', 'checkrol:Admin'])->group(function () {
     Route::resource('unidades-medida', UnidadesMedida::class)->names('unidades.medida');
     Route::resource('componentes', componentes::class)->names('componentes');
     //Reprtes del administrador
-    Route::get('/reportes_Admin', [Reportes::class, 'index'])->name('admin.reportes.index');
+    //Route::get('/reportes_Admin', [Reportes::class, 'index'])->name('admin.reportes.index');
     // Route::get('/get-maestros/{userId}', [Reportes::class, 'getMaestrosByUser']);
     // Route::get('/get-esclavos/{maestroId}', [Reportes::class, 'getEsclavosByMaestro']);
     // Route::get('/get-componentes/{esclavoId}', [Reportes::class, 'getComponentesByEsclavo']);
     // Route::get('/generar', [Reportes::class, 'generarReporteAdmin']);
 
     //
-     Route::prefix('admin/reportes')->group(function () {
-    // Route::get('/', [Reportes::class, 'index'])->name('admin.reportes.index');
-    Route::get('/inventario-global', [Reportes::class, 'getInventarioGlobal']);
-    Route::get('/get-maestros/{userId}', [Reportes::class, 'getMaestrosByUser']);
-    Route::get('/get-esclavos/{maestroId}', [Reportes::class, 'getEsclavosByMaestro']);
-    Route::get('/get-componentes/{esclavoId}', [Reportes::class, 'getComponentesByEsclavo']);
-    Route::get('/generar', [Reportes::class, 'generarReporteAdmin']);
-    Route::get('/kpi-usuarios', [Reportes::class, 'getUsuariosKpi']);
-    Route::get('/kpi-maestros', [Reportes::class, 'getMaestrosKpi']);
-    Route::get('/kpi-esclavos', [Reportes::class, 'getEsclavosKpi']);
-});
 
+    Route::prefix('admin/reportes')->name('admin.reportes.')->middleware(['auth'])->group(function () {
+    // Vista principal
+    Route::get('/', [AdminReportesController::class, 'index'])->name('index');
+
+    // Endpoints para las DataTables (Devuelven JSON)
+    Route::get('/api/usuarios', [AdminReportesController::class, 'getUsuarios'])->name('api.usuarios');
+    Route::get('/api/maestros-catalogo', [AdminReportesController::class, 'getMaestrosCatalogo'])->name('api.maestros');
+    Route::get('/api/esclavos-catalogo', [AdminReportesController::class, 'getEsclavosCatalogo'])->name('api.esclavos');
+    Route::get('/api/tabla-maestra', [AdminReportesController::class, 'getTablaMaestra'])->name('api.tabla_maestra');
+    
+    // Endpoint individual para InfluxDB (El "escáner en vivo")
+    Route::post('/api/influx-status', [AdminReportesController::class, 'checkInfluxStatus'])->name('api.influx');
+});
 
     // Catálogo de Maestros
     Route::prefix('maestros-catalogo')->group(function () {

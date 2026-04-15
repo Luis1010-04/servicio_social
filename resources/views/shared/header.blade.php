@@ -2,12 +2,12 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
   <div class="d-flex align-items-center justify-content-between">
-    <a href="{{ route('home') }}" class="logo d-flex align-items-center">
+    <a href="{{ route(Auth::user()->rol === 'Admin' ? 'home' : 'user.home') }}" class="logo d-flex align-items-center">
       <img src="{{ asset('NiceAdmin/assets/img/logo.png') }}" alt="IoT Logo">
       <span class="d-none d-lg-block">IoT Project</span>
     </a>
     <i class="bi bi-list toggle-sidebar-btn"></i>
-  </div><!-- End Logo -->
+  </div>
 
     <div class="search-bar">
       <form class="search-form d-flex align-items-center" method="POST" action="#">
