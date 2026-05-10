@@ -107,7 +107,7 @@ class MaestrosCatalogo extends Controller
             ->select(
                 'ec.*', 
                 'u.nombre as nombre_ubicacion', 
-                'me.nombre as alias_en_maestro' // El nombre que le dio el maestro al esclavo
+                'me.nombre as alias_en_maestro' 
             )
             ->where('me.maestro_id', $id)
             ->get();
