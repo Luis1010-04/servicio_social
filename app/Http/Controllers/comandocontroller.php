@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class Comandos extends Controller
+class comandocontroller extends controller
 {
     public function index()
     {

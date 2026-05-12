@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth; // Agregamos la Facade para evitar errores 
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class Usuarios extends Controller
+class usuariocontroller extends controller
 {
     public function index()
     {

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use InfluxDB2\Client;
 
-class UserEsclavoController extends Controller
+class useresclavocontroller extends controller
 {
     public function index()
 {
@@ -29,7 +29,7 @@ class UserEsclavoController extends Controller
         ->where('mu.user_id', $userId) // El candado de seguridad hereda del maestro
         ->get();
 
-    return view('modules.vistasUsuario.esclavos.index', compact('titulo', 'esclavos'));
+    return view('modules.vistasusuario.esclavos.index', compact('titulo', 'esclavos'));
 }
     /**
      * Store: Registra un nuevo esclavo vinculado a un maestro físico.
@@ -96,7 +96,7 @@ class UserEsclavoController extends Controller
 
         $titulo = "Monitoreo: " . $esclavo->nombre;
 
-        return view('modules.vistasUsuario.esclavos.monitor', compact('titulo', 'esclavo', 'ultimaLectura'));
+        return view('modules.vistasusuario.esclavos.monitor', compact('titulo', 'esclavo', 'ultimaLectura'));
     }
 
     /**
@@ -114,7 +114,7 @@ class UserEsclavoController extends Controller
         $ubicaciones = DB::table('ubicaciones')->where('user_id', Auth::id())->get();
         $titulo = "Editar Esclavo: " . $esclavo->nombre;
 
-        return view('modules.vistasUsuario.esclavos.edit', compact('titulo', 'esclavo', 'ubicaciones'));
+        return view('modules.vistasusuario.esclavos.edit', compact('titulo', 'esclavo', 'ubicaciones'));
     }
 
     /**
@@ -184,7 +184,7 @@ class UserEsclavoController extends Controller
         // Ubicaciones del usuario
         $ubicaciones = DB::table('ubicaciones')->where('user_id', $userId)->get();
 
-        return view('modules.vistasUsuario.esclavos.create', 
+        return view('modules.vistasusuario.esclavos.create', 
             compact('titulo', 'maestros', 'catalogoEsclavos', 'ubicaciones', 'maestro_id'));
     }
 public function getConfiguracion($serie)

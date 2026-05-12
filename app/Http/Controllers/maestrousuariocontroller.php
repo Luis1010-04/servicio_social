@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MaestrosUsuarios extends Controller
+class maestrousuariocontroller extends controller
 {
     public function administrar($id)
     {
@@ -33,7 +33,7 @@ class MaestrosUsuarios extends Controller
         // Cargamos el catálogo de ubicaciones para los selects de la vista
         $ubicaciones = DB::table('ubicaciones')->get();
 
-        return view('modules.Maestros_Usuario.administrar', compact('titulo', 'datos', 'usuario', 'disponibles', 'ubicaciones'));
+        return view('modules.maestros_usuario.administrar', compact('titulo', 'datos', 'usuario', 'disponibles', 'ubicaciones'));
     }
 
     public function store(Request $request)

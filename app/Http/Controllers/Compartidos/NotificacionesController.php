@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Compartidos;
+namespace App\Http\Controllers\compartidos;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 
-class NotificacionesController extends Controller
+class notificacionescontroller extends controller
 {
     //
 }

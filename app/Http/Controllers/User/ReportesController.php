@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class ReportesController extends Controller
+class reportescontroller extends controller
 {
 public function index()
 {
@@ -27,7 +27,7 @@ public function index()
         )
         ->get();
 
-    return view('modules.vistasUsuario.reportes.index', compact('titulo', 'maestros'));
+    return view('modules.vistasusuario.reportes.index', compact('titulo', 'maestros'));
 }
 
 // public function getEsclavosByMaestro($id)

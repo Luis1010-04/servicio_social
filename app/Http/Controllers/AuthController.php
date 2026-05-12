@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 
-class AuthController extends Controller
+class authcontroller extends controller
 {
     public function index(){
         $titulo = 'Login de usuarios';
@@ -33,7 +33,7 @@ class AuthController extends Controller
         FacadesAuth::login($user);
         $request->session()->regenerate();
 
-        if ($user->rol === 'Admin') {
+        if (strtolower($user->rol) === 'admin') {
             return redirect()->route('home'); // Si es admin
         } else {
             return redirect()->route('user.home');  // Si es usuario va a 

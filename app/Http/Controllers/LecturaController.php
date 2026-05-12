@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Lectura;
 use App\Models\Componente; // Usamos solo el singular que es el que tienes en tu carpeta Models
 
-class LecturaController extends Controller
+class lecturacontroller extends controller
 {
     public function store(Request $request)
     {

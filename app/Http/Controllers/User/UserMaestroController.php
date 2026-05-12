@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class UserMaestroController extends Controller
+class usermaestrocontroller extends controller
 {
     /**
      * Muestra la lista de equipos maestros del usuario logueado.
@@ -24,7 +24,7 @@ class UserMaestroController extends Controller
             ->where('mu.user_id', $userId)
             ->get();
 
-        return view('modules.vistasUsuario.maestros.index', compact('titulo', 'maestros'));
+        return view('modules.vistasusuario.maestros.index', compact('titulo', 'maestros'));
     }
 
     /**
@@ -40,7 +40,7 @@ class UserMaestroController extends Controller
         // Solo las ubicaciones que este usuario ha creado
         $ubicaciones = DB::table('ubicaciones')->where('user_id', Auth::id())->get();
 
-        return view('modules.vistasUsuario.maestros.create', compact('titulo', 'modelosDisponibles', 'ubicaciones'));
+        return view('modules.vistasusuario.maestros.create', compact('titulo', 'modelosDisponibles', 'ubicaciones'));
     }
 
     /**
@@ -94,7 +94,7 @@ class UserMaestroController extends Controller
         $titulo = "Editar Equipo: " . $maestro->nombre;
         $ubicaciones = DB::table('ubicaciones')->where('user_id', Auth::id())->get();
 
-        return view('modules.vistasUsuario.maestros.edit', compact('titulo', 'maestro', 'ubicaciones'));
+        return view('modules.vistasusuario.maestros.edit', compact('titulo', 'maestro', 'ubicaciones'));
     }
 
     /**
@@ -148,7 +148,7 @@ class UserMaestroController extends Controller
         $ubicaciones = DB::table('ubicaciones')->where('user_id', Auth::id())->get();
         $titulo = "Administrar: " . $maestro->nombre;
 
-        return view('modules.vistasUsuario.maestros.administrar', 
+        return view('modules.vistasusuario.maestros.administrar', 
             compact('titulo', 'maestro', 'esclavos', 'catalogoEsclavos', 'ubicaciones'));
     }
 

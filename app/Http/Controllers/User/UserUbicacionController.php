@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class UserUbicacionController extends Controller
+class userubicacioncontroller extends controller
 {
     public function index()
     {
@@ -19,7 +19,7 @@ class UserUbicacionController extends Controller
             ->where('user_id', $userId)
             ->get();
 
-        return view('modules.vistasUsuario.ubicaciones.index', compact('titulo', 'ubicaciones'));
+        return view('modules.vistasusuario.ubicaciones.index', compact('titulo', 'ubicaciones'));
     }
 
     public function store(Request $request)
@@ -84,6 +84,6 @@ class UserUbicacionController extends Controller
         ->where('user_id', Auth::id())
         ->firstOrFail();
 
-    return view('modules.vistasUsuario.ubicaciones.edit', compact('titulo', 'ubicacion'));
+    return view('modules.vistasusuario.ubicaciones.edit', compact('titulo', 'ubicacion'));
 }
 }

@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
-class UnidadesMedida extends Controller
+class unidadmedidacontroller extends controller
 {
     public function index()
     {
         $titulo = "Unidades de Medida";
         $datos = DB::table('unidades_de_medida')->get();
         // Nota: Asegúrate que el nombre de la carpeta sea exacto (unidadMedida vs UnidadMedida)
-        return view('modules.unidadMedida.index', compact('titulo', 'datos'));
+        return view('modules.unidadmedida.index', compact('titulo', 'datos'));
     }
 
     public function create()
     {
         $titulo = "Crear Unidad de Medida";
-        return view('modules.unidadMedida.create', compact('titulo'));
+        return view('modules.unidadmedida.create', compact('titulo'));
     }
 
     public function store(Request $request)
@@ -52,7 +52,7 @@ class UnidadesMedida extends Controller
             return redirect()->route('unidades.medida.index')->with('error', 'Registro no encontrado.');
         }
 
-        return view('modules.unidadMedida.edit', compact('titulo', 'item'));
+        return view('modules.unidadmedida.edit', compact('titulo', 'item'));
     }
 
     public function update(Request $request, string $id)

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +11,7 @@ use PhpMqtt\Client\MqttClient;
 use InfluxDB2\Client as InfluxClient;
 use InfluxDB2\Point;
 
-class UserComponenteController extends Controller
+class usercomponentecontroller extends controller
 {
    public function controlar(Request $request, $esclavoId)
 {

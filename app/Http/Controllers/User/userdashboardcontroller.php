@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use InfluxDB2\Client;
 use Carbon\Carbon;
 
-class UserDashboard extends Controller
+class userdashboardcontroller extends controller
 {
     public function index()
     {
@@ -30,7 +30,7 @@ class UserDashboard extends Controller
             )
             ->get();
 
-        return view('modules.vistasUsuario.dashboard.home', compact('esclavos','titulo'));
+        return view('modules.vistasusuario.dashboard.home', compact('esclavos','titulo'));
     }
 
     public function getRealTimeData()

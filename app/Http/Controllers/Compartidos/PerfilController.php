@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Compartidos;
+namespace App\Http\Controllers\compartidos;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User; // Importante para la sugerencia de tipo
 
-class PerfilController extends Controller
+class perfilcontroller extends controller
 {
     /**
      * Mostrar la vista del perfil

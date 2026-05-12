@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InfluxDB2\Client;
 
-class Dashboard extends Controller
+class dashboardcontroller extends controller
 {
     public function index()
     {

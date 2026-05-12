@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MaestrosCatalogo extends Controller
+class maestrocatalogocontroller extends controller
 {
     public function index()
     {
