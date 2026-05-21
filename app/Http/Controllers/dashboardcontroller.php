@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// Import Carbon para limpiar la fecha SQL
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InfluxDB2\Client;
@@ -23,8 +23,7 @@ class dashboardcontroller extends controller
         ];
 
         // 2. Últimos Equipos Registrados y CORRECCIÓN DE FECHA
-        // Eloquent/QueryBuilder por defecto mandan 'Y-m-d H:i:s.u' (con microsegundos).
-        // Si tu base de datos SQL no soporta microsegundos en 'created_at', dará error.
+
         
         $ultimosMaestrosRaw = DB::table('maestros_catalogo')
             ->orderBy('created_at', 'desc')
@@ -33,7 +32,7 @@ class dashboardcontroller extends controller
 
         // Limpiamos las fechas con Carbon antes de mandarlas a la vista
         $ultimosMaestros = $ultimosMaestrosRaw->map(function ($maestro) {
-            // Aseguramos formato SQL limpio: YYYY-MM-DD HH:MM:SS
+            
             $maestro->fecha_formateada = Carbon::parse($maestro->created_at)->format('Y-m-d H:i:s');
             return $maestro;
         });
@@ -43,6 +42,14 @@ class dashboardcontroller extends controller
 
         return view('modules.dashboard.home', compact('titulo', 'stats', 'ultimosMaestros', 'influxStatus'));
     }
+
+    public function pendiente()
+    {
+        $titulo = "404 - Página No Encontrada";
+
+        return view('modules.pendiente.index', compact('titulo'));
+    }
+
 
     private function checkInfluxStatus()
     {

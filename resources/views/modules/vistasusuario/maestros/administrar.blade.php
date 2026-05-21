@@ -8,6 +8,7 @@
         <h1>Administrar Dispositivos</h1>
         <nav>
             <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.maestros.index') }}">Mis Maestros</a></li>
                 <li class="breadcrumb-item active">{{ $maestro->nombre }}</li>
             </ol>
@@ -25,7 +26,7 @@
                         <p><strong>Tópico:</strong> <code>{{ $maestro->topico }}</code></p>
                         <hr>
                         <button class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalAddEsclavo">
-                            <i class="bi bi-plus-circle"></i> Agregar Sensor/Esclavo
+                            <i class="bi bi-plus-circle"></i> Agregar Esclavo
                         </button>
                     </div>
                 </div>
@@ -87,6 +88,6 @@
     </section>
 </main>
 
-@include('modules.vistasUsuario.maestros.partials.modal_add_esclavo')
+@include('modules.vistasusuario.maestros.partials.modal_add_esclavo')
 
 @endsection

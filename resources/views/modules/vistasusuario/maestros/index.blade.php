@@ -9,7 +9,7 @@
             <h1>Mis Equipos Maestros</h1>
             <nav>
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                     <li class="breadcrumb-item active">Maestros</li>
                 </ol>
             </nav>
@@ -47,7 +47,7 @@
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <div class="btn-group" role="group">
                                     <a href="{{ route('user.maestros.administrar', $maestro->id) }}" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-node-plus"></i> Sensores
+                                        <i class="bi bi-node-plus"></i> Esclavos
                                     </a>
                                     <a href="{{ route('user.maestros.edit', $maestro->id) }}" class="btn btn-outline-secondary btn-sm" title="Editar Equipo">
                                         <i class="bi bi-pencil"></i>

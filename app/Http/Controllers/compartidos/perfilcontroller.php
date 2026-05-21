@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\compartidos;
 
-use App\Http\Controllers\controller;
+use App\Http\Controllers\controller; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Password;
-use App\Models\User; // Importante para la sugerencia de tipo
+use App\Models\User;
 
-class perfilcontroller extends controller
-{
+class perfilcontroller extends Controller {
     /**
      * Mostrar la vista del perfil
      */
@@ -29,13 +28,13 @@ class perfilcontroller extends controller
     public function update(Request $request)
     {
         /** @var User $user */
-        $user = Auth::user(); // La anotación @var quita el error de "Undefined method"
+        $user = Auth::user();
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'apellido' => 'required|string|max:255',
-            'usuario'  => 'required|string|max:255|unique:users,usuario,' . $user->id,
-            'email'    => 'required|email|unique:users,email,' . $user->id,
+            'name'       => 'required|string|max:255',
+            'apellido'   => 'required|string|max:255',
+            'usuario'    => 'required|string|max:255|unique:users,usuario,' . $user->id,
+            'email'      => 'required|email|unique:users,email,' . $user->id,
             'imagen_url' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -69,10 +68,11 @@ class perfilcontroller extends controller
     {
         $request->validate([
             'current_password' => 'required',
-            'newpassword'      => ['required', 'confirmed', Password::min(8)],
+            // <-- Corregido: Usamos 'same:renewpassword' para que empate con tu vista HTML
+            'newpassword'      => ['required', 'same:renewpassword', Password::min(8)], 
         ], [
-            'newpassword.confirmed' => 'La nueva contraseña y su confirmación no coinciden.',
-            'newpassword.min'       => 'La contraseña debe tener al menos 8 caracteres.'
+            'newpassword.same' => 'La nueva contraseña y su confirmación no coinciden.',
+            'newpassword.min'  => 'La contraseña debe tener al menos 8 caracteres.'
         ]);
 
         /** @var User $user */

@@ -8,7 +8,7 @@
         <h1>{{ $titulo }}</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.ubicaciones.index') }}">Ubicaciones</a></li>
                 <li class="breadcrumb-item active">Editar</li>
             </ol>

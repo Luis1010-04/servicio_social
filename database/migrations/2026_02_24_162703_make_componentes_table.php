@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('componentes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('unidad_id')->constrained('unidades_de_medida')->cascadeOnDelete();
+            $table->foreignId('unidad_id')->nullable()->constrained('unidades_de_medida')->cascadeOnDelete();
             $table->string('nombre');
             $table->string('tipo');
             $table->string('descripcion')->nullable();

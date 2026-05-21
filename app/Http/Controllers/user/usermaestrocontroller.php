@@ -46,31 +46,34 @@ class usermaestrocontroller extends controller
     /**
      * Guarda la vinculación del hardware con el usuario.
      */
-    public function store(Request $request)
+public function store(Request $request)
     {
         $request->validate([
-        'maestro_id'   => 'required|exists:maestros_catalogo,id',
-        'numero_serie' => 'required|string|max:100|unique:maestros_usuarios,numero_serie',
-        'ubicacion_id' => 'required|exists:ubicaciones,id',
-        'nombre'       => 'required|string|max:100',
-        'topico'       => 'required|string',
-        'Broker'       => 'required|ip|unique:maestros_usuarios,Broker', // <--- Crucial para evitar el error 500
-    ], [
-        'Broker.unique' => 'Esta dirección IP de Broker ya está asignada a otro equipo.',
-        'numero_serie.unique' => 'Este número de serie ya existe en el sistema.',
-        'Broker.ip' => 'El formato de la dirección IP no es válido.'
-    ]);
+            'maestro_id'   => 'required|exists:maestros_catalogo,id',
+            'numero_serie' => 'required|string|max:100|unique:maestros_usuarios,numero_serie',
+            'ubicacion_id' => 'required|exists:ubicaciones,id',
+            'nombre'       => 'required|string|max:100',
+            // El tópico ya no se valida porque lo generamos nosotros
+            'Broker'       => 'required|string', // Quitamos ip y unique
+        ], [
+            'numero_serie.unique' => 'Este número de serie ya existe en el sistema.',
+        ]);
 
+        $userId = Auth::id();
         $nombreUbi = DB::table('ubicaciones')->where('id', $request->ubicacion_id)->value('nombre');
 
+        // Generamos el tópico automáticamente en minúsculas y sin espacios extra
+        $numeroSerieLimpio = strtolower(trim($request->numero_serie));
+        $topicoAutogenerado = "usr_{$userId}/ubi_{$request->ubicacion_id}/{$numeroSerieLimpio}";
+
         DB::table('maestros_usuarios')->insert([
-            'user_id'      => Auth::id(),
+            'user_id'      => $userId,
             'maestro_id'   => $request->maestro_id,
-            'ubicacion_id' => $request->ubicacion_id, // Incluimos el ID
+            'ubicacion_id' => $request->ubicacion_id, 
             'numero_serie' => strtoupper($request->numero_serie),
             'nombre'       => $request->nombre,
             'localizacion' => $nombreUbi, 
-            'topico'       => $request->topico,
+            'topico'       => $topicoAutogenerado, // Insertamos el tópico generado
             'imagen_ruta'  => 'default.png', 
             'Broker'       => $request->Broker,
             'created_at'   => now(),
@@ -100,12 +103,13 @@ class usermaestrocontroller extends controller
     /**
      * Actualiza la configuración del maestro.
      */
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
     {
         $request->validate([
             'ubicacion_id' => 'required|exists:ubicaciones,id',
             'nombre'       => 'required|string|max:100',
-            'topico'       => 'required|string',
+            'Broker'       => 'required|string',
+            // El tópico no se actualiza manualmente, así que lo quitamos de la validación
         ]);
 
         // Update con cláusula where de seguridad
@@ -115,8 +119,8 @@ class usermaestrocontroller extends controller
             ->update([
                 'ubicacion_id' => $request->ubicacion_id,
                 'nombre'       => $request->nombre,
-                'topico'       => $request->topico,
                 'Broker'       => $request->Broker,
+                // Quitamos el topico de la actualización
                 'updated_at'   => now(),
             ]);
 

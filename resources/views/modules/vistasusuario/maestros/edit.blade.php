@@ -8,7 +8,7 @@
         <h1>Editar Equipo Maestro</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.maestros.index') }}">Maestros</a></li>
                 <li class="breadcrumb-item active">Editar</li>
             </ol>
@@ -51,20 +51,25 @@
                                 @error('ubicacion_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
 
-                            <div class="col-12 mt-4">
+                                <div class="col-12 mt-4">
                                 <h6 class="text-primary"><i class="bi bi-gear"></i> Configuración Avanzada</h6>
                                 <hr>
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Tópico MQTT</label>
-                                <input type="text" name="topico" class="form-control" value="{{ $maestro->topico }}" required>
+                            <div class="col-md-12">
+                                <label class="form-label">Broker</label>
+                                <input type="text" name="Broker" 
+                                    class="form-control @error('Broker') is-invalid @enderror" 
+                                    value="{{ old('Broker', $maestro->Broker) }}" required>
+                                
+                                @error('Broker')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Broker</label>
-                                <input type="text" name="Broker" class="form-control" value="{{ $maestro->Broker }}">
-                            </div>
+                            <div class="text-center mt-4">
 
                             <div class="text-center mt-4">
                                 <button type="submit" class="btn btn-success px-4">Guardar Cambios</button>

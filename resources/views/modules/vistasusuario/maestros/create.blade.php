@@ -8,7 +8,7 @@
         <h1>Vincular Nuevo Equipo Maestro</h1>
         <nav>
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.maestros.index') }}">Maestros</a></li>
                 <li class="breadcrumb-item active">Nuevoooo</li>
             </ol>
@@ -75,21 +75,13 @@
                             <hr class="my-4">
                             <h6 class="text-primary mb-3">Configuración de Comunicación (MQTT)</h6>
 
-                            <div class="col-md-6">
-                                <label class="form-label">Tópico Base</label>
-                                <input type="text" name="topico" class="form-control @error('topico') is-invalid @enderror" 
-                                       placeholder="casa/planta-baja/sala" value="{{ old('topico') }}" required>
-                                @error('topico') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label">Dirección del Broker (IP/Host)</label>
                                 <input type="text" name="Broker" 
-                                    class="form-control @error('Broker') is-invalid @enderror" {{-- Agregamos la clase de error --}}
+                                    class="form-control @error('Broker') is-invalid @enderror"
                                     placeholder="192.168.1.10" 
-                                    value="{{ old('Broker', '192.168.1.10') }}">
+                                    value="{{ old('Broker', '192.168.1.10') }}" required>
                                 
-                                {{-- Agregamos el mensaje de error --}}
                                 @error('Broker')
                                     <div class="invalid-feedback">
                                         {{ $message }}

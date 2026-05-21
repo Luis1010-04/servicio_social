@@ -65,7 +65,7 @@ class unidadmedidacontroller extends controller
         try {
             DB::table('unidades_de_medida')->where('id', $id)->update([
                 'nombre'     => $request->nombre,
-                'updated_at' => now(),
+                
             ]);
             return redirect()->route('unidades.medida.index')->with('success', 'Actualizado correctamente');
         } catch (\Exception $e) {

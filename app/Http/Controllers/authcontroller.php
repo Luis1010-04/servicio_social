@@ -39,19 +39,19 @@ class authcontroller extends controller
             return redirect()->route('user.home');  // Si es usuario va a 
         }
     }
-    public function crearAdmin(){
-        //Crear admin
-        User::create([
-            'name' => 'Admin',
-            'apellido' => 'Glez',
-            'usuario'  => 'admin01',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('admin'),
-            'activo' => true,
-            'rol' => 'admin'
-        ]);
-        return 'Admin creado exitosamente';
-    }
+    // public function crearAdmin(){
+    //     //Crear admin
+    //     User::create([
+    //         'name' => 'Admin',
+    //         'apellido' => 'Glez',
+    //         'usuario'  => 'admin01',
+    //         'email' => 'admin@admin.com',
+    //         'password' => Hash::make('admin'),
+    //         'activo' => true,
+    //         'rol' => 'admin'
+    //     ]);
+    //     return 'Admin creado exitosamente';
+    // }
     public function logout(){
         FacadesAuth::logout();
         return to_route('login');

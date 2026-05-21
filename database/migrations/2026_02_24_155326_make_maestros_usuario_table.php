@@ -21,9 +21,9 @@ return new class extends Migration
             $table->string('numero_serie', 100)->unique();
             $table->string('nombre');
             $table->string('imagen_ruta')->default('default.png');
-            $table->string('localizacion'); // Nuevo campo para guardar el nombre de la ubicación
+            $table->string('localizacion');
             $table->string('topico');
-            $table->string('Broker')->unique();
+            $table->string('Broker');
             $table->text('descripcion')->nullable();
             $table->timestamps();
         });

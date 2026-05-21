@@ -12,7 +12,7 @@ class componentecontroller extends controller
         $titulo = "Administración de Componentes";
         
         $datos = DB::table('componentes as c')
-            ->join('unidades_de_medida as um', 'c.unidad_id', '=', 'um.id')
+            ->leftJoin('unidades_de_medida as um', 'c.unidad_id', '=', 'um.id')
             ->select(
                 'c.*', 
                 'um.nombre as unidad_medida',
@@ -33,7 +33,7 @@ class componentecontroller extends controller
         return view('modules.componentes.create', compact('titulo', 'unidades', 'esclavos'));
     }
 
-    public function store(Request $request)
+public function store(Request $request)
     {
         $rules = [
             'nombre' => 'required|string|max:255',
@@ -51,8 +51,8 @@ class componentecontroller extends controller
         try {
             DB::beginTransaction();
 
-            // Si es actuador, forzamos que sea null independientemente de lo que llegue
-            $unidadId = ($request->tipo === 'Actuador') ? 1 : $request->unidad_id;
+            $unidadId = ($request->tipo === 'Actuador') ? null : $request->unidad_id;
+            
             $componenteId = DB::table('componentes')->insertGetId([
                 'unidad_id'   => $unidadId,
                 'nombre'      => $request->nombre,
@@ -99,18 +99,32 @@ class componentecontroller extends controller
         return view('modules.componentes.edit', compact('titulo', 'componente', 'unidades', 'esclavos', 'esclavosVinculados'));
     }
 
-    public function update(Request $request, $id)
+public function update(Request $request, $id)
     {
-        $request->validate([
-            'unidad_id'   => 'required',
-            'nombre'      => 'required|max:255',
-        ]);
+        // 1. Definimos las reglas base
+        $rules = [
+            'nombre' => 'required|max:255',
+            'tipo'   => 'required',
+        ];
+
+        // 2. Condicionamos la unidad_id tal como en el store
+        if ($request->tipo === 'Sensor') {
+            $rules['unidad_id'] = 'required|exists:unidades_de_medida,id';
+        } else {
+            $rules['unidad_id'] = 'nullable';
+        }
+
+        // Ejecutamos la validación
+        $request->validate($rules);
 
         try {
             DB::beginTransaction();
 
+            // 3. Forzamos null si es actuador, para que no intente guardar un string vacío
+            $unidadId = ($request->tipo === 'Actuador') ? null : $request->unidad_id;
+
             DB::table('componentes')->where('id', $id)->update([
-                'unidad_id'   => $request->unidad_id,
+                'unidad_id'   => $unidadId,
                 'nombre'      => $request->nombre,
                 'tipo'        => $request->tipo,
                 'descripcion' => $request->descripcion,
@@ -130,6 +144,7 @@ class componentecontroller extends controller
             }
 
             DB::commit();
+            // ¡Ahora sí llegará a esta línea!
             return redirect()->route('componentes.index')->with('success', 'Componente actualizado correctamente.');
         } catch (\Exception $e) {
             DB::rollBack();

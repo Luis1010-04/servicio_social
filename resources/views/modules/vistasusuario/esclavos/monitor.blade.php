@@ -8,6 +8,7 @@
         <h1>Panel de Monitoreo</h1>
         <nav>
             <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('user.home') }}">Inicio</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.maestros.index') }}">Mis Maestros</a></li>
                 <li class="breadcrumb-item active">Monitor: {{ $esclavo->nombre }}</li>
             </ol>
