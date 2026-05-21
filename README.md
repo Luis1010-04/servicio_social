@@ -31,12 +31,3 @@ Antes de comenzar la instalación, asegúrate de tener instalado en tu entorno U
 * Git.
 
 ---
-
-## 🔧 Guía de Instalación y Despliegue Local
-
-Sigue estos pasos rigurosamente para clonar y ejecutar el entorno de desarrollo:
-
-### 1. Clonar el repositorio y acceder al directorio
-```bash
-git clone [https://github.com/tu-usuario/servicio_social.git](https://github.com/tu-usuario/servicio_social.git)
-cd servicio_social
