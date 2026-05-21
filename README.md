@@ -1,59 +1,33 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Plataforma de Gestión IoT - Monitoreo de Variables Ambientales 
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Este proyecto es una plataforma web híbrida desarrollada en **Laravel 12** orientada a la administración, centralización y análisis volumétrico de datos provenientes de nodos sensores de variables ambientales. El sistema organiza los dispositivos en una topología jerárquica de hardware (Maestros y Esclavos) comunicados a través del protocolo de mensajería asíncrona MQTT.
 
-## About Laravel
+## Características Principales
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* **Persistencia Políglota (Dual-Database):** Uso de **MySQL** para la gestión relacional (usuarios, roles, ubicaciones e infraestructura de red) en coexistencia con **InfluxDB** para almacenar series temporales de alta densidad (telemetría de los sensores).
+* **Gestión de Infraestructura:** Mapeo de ubicaciones físicas y asignación dinámica de hardware.
+* **Seguridad por Capas:** Control de accesos mediante autenticación nativa y Middlewares personalizados para la segregación de funciones por roles (`Admin` / `Usuario`).
+* **Arquitectura IoT Perimetral:** * **Nodos Esclavos:** Captura cíclica de variables ambientales y transmisión local.
+    * **Nodos Maestros (Gateway):** Concentración de ráfagas de datos de esclavos y puente directo de inserción a InfluxDB.
+    * **Broker MQTT:** Instancia virtualizada de **Eclipse Mosquitto** mediante Docker.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Stack Tecnológico
 
-## Learning Laravel
+* **Backend:** PHP 8.2.12 & Framework Laravel 12.x
+* **Bases de Datos:** MySQL / MariaDB + InfluxDB
+* **Servidor Web Local:** Apache 2.4 (Entorno LAMPP / XAMPP para Linux)
+* **Mensajería / IoT:** Eclipse Mosquitto (MQTT Broker) hospedado en un contenedor de Docker.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 💻 Requisitos Previos
 
-## Laravel Sponsors
+Antes de comenzar la instalación, asegúrate de tener instalado en tu entorno UNIX/Linux:
+* [XAMPP/LAMPP for Linux](https://www.apachefriends.org/) (PHP >= 8.2 y MySQL).
+* [Composer](https://getcomposer.org/) (Gestor de dependencias de PHP).
+* [Docker](https://docs.docker.com/engine/install/) y Docker Compose.
+* Git.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
