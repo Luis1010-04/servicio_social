@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class MaestroEsclavoController extends Controller
+class maestroesclavocontroller extends controller
 {
     /**
      * Muestra el panel de control del esclavo y sus componentes (Sensores/Actuadores).
@@ -57,7 +57,7 @@ class MaestroEsclavoController extends Controller
         $ubicaciones = DB::table('ubicaciones')->get();
         $titulo = "Vincular Red - Maestro: " . $maestro->nombre;
 
-        return view('modules.MaestroEsclavo.index', compact('maestro', 'disponibles', 'ubicaciones', 'titulo'));
+        return view('modules.maestroesclavo.index', compact('maestro', 'disponibles', 'ubicaciones', 'titulo'));
     }
 
     /**

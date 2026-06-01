@@ -23,10 +23,10 @@ class AppServiceProvider extends ServiceProvider
     {
         //Gates para acceso de usuario chismosos 
         Gate::define('ver-admin', function ( User $user) {
-            return $user->rol === 'Admin';
+            return strtolower($user->rol) === 'admin';
         });
         Gate::define('ver-equiposUbicacion', function ( User $user) {
-            return in_array($user->rol, ['Admin', 'Usuario']);
+            return in_array(strtolower($user->rol), ['admin', 'usuario']);
         });
 
     }

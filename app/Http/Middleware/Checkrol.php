@@ -16,8 +16,8 @@ class Checkrol
      */
     public function handle(Request $request, Closure $next, string $rol): Response
     {
-        if(!Auth::check() || Auth::user()->rol !== $rol) {
-            abort(403, 'No tienes permiso de aaceder a esta pagina');
+        if(!Auth::check() || strtolower(Auth::user()->rol) !== strtolower($rol)) {
+            abort(403, 'No tienes permiso de acceder a esta pagina');
         }
         return $next($request);
     }
