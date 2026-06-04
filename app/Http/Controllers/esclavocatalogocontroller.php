@@ -11,7 +11,7 @@ class esclavocatalogocontroller extends controller
     {
         $titulo = "Catálogo de Equipos Esclavos";
 
-        // Solo traemos la información técnica del catálogo y el conteo de componentes
+         
         $datos = DB::table('esclavos_catalogo as ec')
             ->select(
                 'ec.*',
@@ -27,7 +27,7 @@ class esclavocatalogocontroller extends controller
         $titulo = "Registro de Nuevo Esclavo";
         $ubicaciones = DB::table('ubicaciones')->get();
         
-        // Componentes disponibles (puedes ajustar el whereNotIn si prefieres que se repitan)
+        
         $componentes_disponibles = DB::table('componentes')->get();
 
         return view('modules.esclavos.create', compact('titulo', 'ubicaciones', 'componentes_disponibles'));
@@ -108,7 +108,7 @@ class esclavocatalogocontroller extends controller
                 // quitamos 'ubicacion_id' => $request->ubicacion_id
             ]);
 
-            // Sincronización de componentes se queda igual...
+             
             DB::table('detalle_esclavo_componentes')->where('esclavo_id', $id)->delete();
             if ($request->has('componentes')) {
                 $detalle = [];
