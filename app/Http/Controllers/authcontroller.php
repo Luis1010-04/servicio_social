@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 
-class authcontroller extends controller
+class authcontroller extends Controller
 {
     public function index(){
         $titulo = 'Login de usuarios';

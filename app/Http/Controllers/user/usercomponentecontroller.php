@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +11,7 @@ use PhpMqtt\Client\MqttClient;
 use InfluxDB2\Client as InfluxClient;
 use InfluxDB2\Point;
 
-class usercomponentecontroller extends controller
+class usercomponentecontroller extends Controller
 {
    public function controlar(Request $request, $esclavoId)
 {
@@ -26,7 +26,7 @@ class usercomponentecontroller extends controller
 
     if ($esclavo) {
         try {
-            $mqtt = new \PhpMqtt\Client\MqttClient(env('MQTT_HOST'), env('MQTT_PORT'), 'laravel_client_' . uniqid());
+            $mqtt = new \PhpMqtt\Client\MqttClient(config('services.mqtt.host'), config('services.mqtt.port'), 'laravel_client_' . uniqid());
             $mqtt->connect();
             
             // Tópico idéntico al que usaste en CMD

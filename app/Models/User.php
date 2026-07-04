@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -48,6 +48,23 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'activo' => 'boolean',
         ];
+    }
+
+    /**
+     * Ubicaciones que pertenecen al usuario.
+     */
+    public function ubicaciones(): HasMany
+    {
+        return $this->hasMany(Ubicaciones::class, 'user_id');
+    }
+
+    /**
+     * Instancias físicas de gateways/maestros del usuario.
+     */
+    public function maestrosUsuarios(): HasMany
+    {
+        return $this->hasMany(MaestroUsuario::class, 'user_id');
     }
 }

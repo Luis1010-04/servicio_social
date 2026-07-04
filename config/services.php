@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'mqtt' => [
+        'host' => env('MQTT_HOST', '127.0.0.1'),
+        'port' => env('MQTT_PORT', 1883),
+    ],
+
+    'influxdb' => [
+        'url' => env('INFLUXDB_URL'),
+        'token' => env('INFLUXDB_TOKEN'),
+        'bucket' => env('INFLUXDB_BUCKET'),
+        'org' => env('INFLUXDB_ORG'),
+    ],
+
 ];

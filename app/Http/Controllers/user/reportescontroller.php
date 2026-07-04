@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class reportescontroller extends controller
+class reportescontroller extends Controller
 {
 public function index()
 {
@@ -134,10 +134,10 @@ public function getComponentesByEsclavo($idRelacion)
 //  {
 //      try {
 //          $client = new \InfluxDB2\Client([
-//              "url" => env('INFLUXDB_URL'),
-//              "token" => env('INFLUXDB_TOKEN'),
-//              "bucket" => env('INFLUXDB_BUCKET'),
-//              "org" => env('INFLUXDB_ORG'),
+//              "url" => config('services.influxdb.url'),
+//              "token" => config('services.influxdb.token'),
+//              "bucket" => config('services.influxdb.bucket'),
+//              "org" => config('services.influxdb.org'),
 //          ]);
 
 //          $queryApi = $client->createQueryApi();
@@ -205,10 +205,10 @@ public function getComponentesByEsclavo($idRelacion)
     {
         try {
             $client = new \InfluxDB2\Client([
-                "url" => env('INFLUXDB_URL'),
-                "token" => env('INFLUXDB_TOKEN'),
-                "bucket" => env('INFLUXDB_BUCKET'),
-                "org" => env('INFLUXDB_ORG'),
+                "url" => config('services.influxdb.url'),
+                "token" => config('services.influxdb.token'),
+                "bucket" => config('services.influxdb.bucket'),
+                "org" => config('services.influxdb.org'),
             ]);
 
             $queryApi = $client->createQueryApi();
@@ -279,10 +279,10 @@ public function getComponentesByEsclavo($idRelacion)
 {
     // 1. Instanciamos InfluxDB una sola vez por petición
     $client = new \InfluxDB2\Client([
-        "url" => env('INFLUXDB_URL'),
-        "token" => env('INFLUXDB_TOKEN'),
-        "bucket" => env('INFLUXDB_BUCKET'),
-        "org" => env('INFLUXDB_ORG'),
+        "url" => config('services.influxdb.url'),
+        "token" => config('services.influxdb.token'),
+        "bucket" => config('services.influxdb.bucket'),
+        "org" => config('services.influxdb.org'),
     ]);
     $queryApi = $client->createQueryApi();
 
@@ -323,7 +323,7 @@ public function getComponentesByEsclavo($idRelacion)
 
         try {
             // Consulta Flux adaptada a tu estructura (sin measurement, tag 'dispositivo')
-            $fluxQuery = 'from(bucket: "' . env('INFLUXDB_BUCKET') . '")
+            $fluxQuery = 'from(bucket: "' . config('services.influxdb.bucket') . '")
                 |> range(start: -30d)
                 |> filter(fn: (r) => r["dispositivo"] == "' . $item->serie . '")
                 |> last()';

@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InfluxDB2\Client;
 
-class dashboardcontroller extends controller
+class dashboardcontroller extends Controller
 {
     public function index()
     {
@@ -55,10 +55,10 @@ class dashboardcontroller extends controller
     {
         try {
             $client = new Client([
-                "url" => env('INFLUXDB_URL'),
-                "token" => env('INFLUXDB_TOKEN'),
-                "bucket" => env('INFLUXDB_BUCKET'),
-                "org" => env('INFLUXDB_ORG'),
+                "url" => config('services.influxdb.url'),
+                "token" => config('services.influxdb.token'),
+                "bucket" => config('services.influxdb.bucket'),
+                "org" => config('services.influxdb.org'),
                 "timeout" => 3 
             ]);
             

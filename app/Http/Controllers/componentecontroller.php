@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class componentecontroller extends controller
+class componentecontroller extends Controller
 {
     public function index()
     {
@@ -58,7 +58,7 @@ public function store(Request $request)
                 'nombre'      => $request->nombre,
                 'tipo'        => $request->tipo,
                 'descripcion' => $request->descripcion,
-                'ruta_incono' => $request->ruta_incono ?? 'bi bi-cpu', 
+                'ruta_icono' => $request->ruta_icono ?? 'bi bi-cpu', 
                 'created_at'  => now(),
                 'updated_at'  => now(),
             ]);

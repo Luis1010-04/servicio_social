@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\user;
 
-use App\Http\Controllers\controller;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use InfluxDB2\Client;
 
-class useresclavocontroller extends controller
+class useresclavocontroller extends Controller
 {
     public function index()
 {
@@ -22,7 +22,7 @@ class useresclavocontroller extends controller
         ->leftJoin('ubicaciones as u', 'me.ubicacion_id', '=', 'u.id')
         ->select(
             'me.*', 
-            'ec.nombre as tipo_dispositivo', 
+            'ec.modelo as tipo_dispositivo', 
             'mu.nombre as nombre_maestro',
             'u.nombre as nombre_ubicacion'
         )
@@ -200,8 +200,8 @@ public function getConfiguracion($serie)
         }
 
         return response()->json([
-            'mqtt_host'  => env('MQTT_HOST', '192.168.100.18'),
-            'mqtt_port'  => (int)env('MQTT_PORT', 1883),
+            'mqtt_host'  => config('services.mqtt.host'),
+            'mqtt_port'  => (int) config('services.mqtt.port'),
             'user_id'    => $dispositivo->user_id,
             'base_topic' => "v1/usuarios/{$dispositivo->user_id}/nodos/{$dispositivo->numero_serie}/",
             'client_id'  => "ESP32_{$dispositivo->numero_serie}",
@@ -225,14 +225,14 @@ public function getConfiguracion($serie)
             ->get();
 
         $client = new Client([
-            "url" => env('INFLUXDB_URL'),
-            "token" => env('INFLUXDB_TOKEN'),
-            "bucket" => env('INFLUXDB_BUCKET'),
-            "org" => env('INFLUXDB_ORG')
+            "url" => config('services.influxdb.url'),
+            "token" => config('services.influxdb.token'),
+            "bucket" => config('services.influxdb.bucket'),
+            "org" => config('services.influxdb.org')
         ]);
 
         $queryApi = $client->createQueryApi();
-        $fluxQuery = 'from(bucket: "' . env('INFLUXDB_BUCKET') . '")
+        $fluxQuery = 'from(bucket: "' . config('services.influxdb.bucket') . '")
             |> range(start: -1h)
             |> filter(fn: (r) => r["dispositivo"] == "' . $esclavo->numero_serie . '")
             |> last()';

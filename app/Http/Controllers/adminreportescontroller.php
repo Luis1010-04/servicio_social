@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class adminreportescontroller extends controller
+class adminreportescontroller extends Controller
 {
     public function index()
     {
@@ -109,9 +109,9 @@ class adminreportescontroller extends controller
 
         try {
             $client = new \InfluxDB2\Client([
-                "url" => env('INFLUXDB_URL'),
-                "token" => env('INFLUXDB_TOKEN'),
-                "org" => env('INFLUXDB_ORG'),
+                "url" => config('services.influxdb.url'),
+                "token" => config('services.influxdb.token'),
+                "org" => config('services.influxdb.org'),
             ]);
             $queryApi = $client->createQueryApi();
 

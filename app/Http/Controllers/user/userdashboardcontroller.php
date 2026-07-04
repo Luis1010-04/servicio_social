@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use InfluxDB2\Client;
 use Carbon\Carbon;
 
-class userdashboardcontroller extends controller
+class userdashboardcontroller extends Controller
 {
     public function index()
     {
@@ -51,10 +51,10 @@ class userdashboardcontroller extends controller
 
             // 2. Cliente InfluxDB
             $client = new Client([
-                "url"    => env('INFLUXDB_URL'),
-                "token"  => env('INFLUXDB_TOKEN'),
-                "bucket" => env('INFLUXDB_BUCKET'),
-                "org"    => env('INFLUXDB_ORG'),
+                "url"    => config('services.influxdb.url'),
+                "token"  => config('services.influxdb.token'),
+                "bucket" => config('services.influxdb.bucket'),
+                "org"    => config('services.influxdb.org'),
                 "timeout" => 5
             ]);
 
@@ -65,7 +65,7 @@ class userdashboardcontroller extends controller
                 ->map(fn($s) => 'r["dispositivo"] == "' . trim($s) . '"')
                 ->implode(' or ');
 
-            $fluxQuery = "from(bucket: \"" . env('INFLUXDB_BUCKET') . "\")
+            $fluxQuery = "from(bucket: \"" . config('services.influxdb.bucket') . "\")
                 |> range(start: -15m)
                 |> filter(fn: (r) => {$filtros})
                 |> keep(columns: [\"_time\", \"_field\", \"_value\", \"dispositivo\"])

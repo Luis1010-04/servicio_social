@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class maestroesclavocontroller extends controller
+class maestroesclavocontroller extends Controller
 {
     /**
      * Muestra el panel de control del esclavo y sus componentes (Sensores/Actuadores).

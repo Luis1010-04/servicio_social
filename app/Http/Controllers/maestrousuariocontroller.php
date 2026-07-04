@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class maestrousuariocontroller extends controller
+class maestrousuariocontroller extends Controller
 {
     public function administrar($id)
     {

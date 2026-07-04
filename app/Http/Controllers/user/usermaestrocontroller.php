@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class usermaestrocontroller extends controller
+class usermaestrocontroller extends Controller
 {
     /**
      * Muestra la lista de equipos maestros del usuario logueado.
