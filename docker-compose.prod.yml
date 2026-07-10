@@ -1,0 +1,80 @@
+# ============================================================================
+# docker-compose.prod.yml — Producción
+# Usar con: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# ============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # App — Producción
+  # ----------------------------------------------------------------------------
+  app:
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - RUN_MIGRATIONS=true
+    # Sin bind mount de código
+    volumes:
+      - storage_data:/app/storage
+    # Reiniciar automáticamente
+    restart: unless-stopped
+    # Recursos limitados
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+
+  # ----------------------------------------------------------------------------
+  # Webserver — Producción
+  # ----------------------------------------------------------------------------
+  webserver:
+    restart: unless-stopped
+    # Sin puerto de debug
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
+  # ----------------------------------------------------------------------------
+  # MySQL — Producción
+  # ----------------------------------------------------------------------------
+  mysql:
+    restart: unless-stopped
+    # NO exponer puerto al host en producción
+    ports: []
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # InfluxDB — Producción
+  # ----------------------------------------------------------------------------
+  influxdb:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ----------------------------------------------------------------------------
+  # Mosquitto — Producción
+  # ----------------------------------------------------------------------------
+  mosquitto:
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 64M

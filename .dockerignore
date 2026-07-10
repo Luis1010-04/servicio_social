@@ -1,0 +1,54 @@
+# ============================================================================
+# .dockerignore — Archivos excluidos del contexto de Docker
+# ============================================================================
+
+# Dependencias (se instalan en etapas separadas)
+node_modules/
+
+# Archivos de entorno (nunca versionados)
+.env
+.env.*
+!.env.example
+
+# Git
+.git/
+.gitattributes
+.gitignore
+
+# Documentación
+docs/
+README.md
+LICENSE
+CONTRIBUCION.md
+INSTALACION.md
+ARQUITECTURA.md
+DOCKER_BACKLOG.md
+
+# Archivos de desarrollo
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs y cache
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# PHPUnit
+phpunit.xml
+tests/
+
+# Editor config
+.editorconfig
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Docker (evitar recursión)
+docker-compose*.yml
+Dockerfile
+.dockerignore

@@ -1,0 +1,60 @@
+# ============================================================================
+# docker-compose.override.yml — Desarrollo Local
+# Se carga automáticamente con `docker compose up`
+# ============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # App — Modo desarrollo (bind mount de código)
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - RUN_MIGRATIONS=true
+    volumes:
+      # Bind mount del código fuente para desarrollo
+      - .:/app
+      - storage_data:/app/storage
+    # No cachear en desarrollo
+    entrypoint: /bin/bash
+    command: ["-c", "php artisan migrate --force && php-fpm"]
+
+  # ----------------------------------------------------------------------------
+  # Webserver — Desarrollo
+  # ----------------------------------------------------------------------------
+  webserver:
+    ports:
+      # Puerto adicional para debugging
+      - "8080:80"
+
+  # ----------------------------------------------------------------------------
+  # MySQL — Desarrollo (puerto expuesto para IDEs)
+  # ----------------------------------------------------------------------------
+  mysql:
+    ports:
+      - "3306:3306"
+
+  # ----------------------------------------------------------------------------
+  # Vite — HMR (Hot Module Replacement)
+  # ----------------------------------------------------------------------------
+  vite:
+    image: node:18-alpine
+    container_name: iot_vite
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - iot_network
+    depends_on:
+      - app
+    environment:
+      - NODE_ENV=development
+    # Puerto de Vite HMR
+    ports:
+      - "5173:5173"
