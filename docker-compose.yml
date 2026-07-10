@@ -83,13 +83,13 @@ services:
       app:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   # ----------------------------------------------------------------------------
-  # Vite — Frontend (React + Tailwind)
+  # Vite — Frontend (React + Tailwind) — CORREGIDO PARA EVITAR BLOQUEOS EN WINDOWS
   # ----------------------------------------------------------------------------
   vite:
     image: node:22-alpine
@@ -97,13 +97,18 @@ services:
     restart: unless-stopped
     working_dir: /app
     ports:
-      - "${VITE_PORT:-5173}:5173"
+      - "5173:5173"
     volumes:
-      - .:/app
-      - node_modules_data:/app/node_modules
+      # Montamos carpetas de código y configs para asegurar el Hot-Reload en desarrollo
+      - ./resources:/app/resources
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./vite.config.js:/app/vite.config.js
+      # Montamos la raíz del proyecto en modo lectura en otra ruta para extraer el package.json sin interferencias
+      - .:/src:ro
     networks:
       - iot_network
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    # Truco maestro: Pasamos package.json al disco virtual interno antes de ejecutar la instalación nativa
+    command: sh -c "cp /src/package.json /app/package.json && npm install && npm run dev -- --host 0.0.0.0"
 
   # ----------------------------------------------------------------------------
   # MySQL — Base de datos relacional
@@ -174,7 +179,6 @@ services:
       - iot_network
     ports:
       - "${MQTT_PORT:-1883}:1883"
-    # CORRECCIÓN DEFINITIVA: Se suscribe a la versión del broker con un timeout de 1s para validar que responda.
     healthcheck:
       test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 1 || exit 1"]
       interval: 10s

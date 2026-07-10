@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_mysql mbstring xml bcmath zip gd \
+    && docker-php-ext-install pdo_mysql mbstring xml bcmath zip gd intl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
