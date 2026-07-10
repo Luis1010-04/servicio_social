@@ -41,13 +41,28 @@ services:
       influxdb:
         condition: service_healthy
       mosquitto:
-        condition: service_started
+        condition: service_healthy
+    # Script defensivo que espera a que el puerto de MySQL realmente responda antes de correr artisan
+    command: >
+      sh -c "
+        echo 'Esperando estabilidad de red en MySQL...';
+        until nc -z -v -w30 mysql 3306; do
+          echo 'Base de datos ocupada o inicializándose... reintentando en 3 segundos...';
+          sleep 3;
+        done;
+        echo 'Conexión a MySQL exitosa.';
+        if [ \"$$RUN_MIGRATIONS\" = \"true\" ]; then 
+          echo 'Corriendo migraciones...';
+          php artisan migrate --force; 
+        fi;
+        php-fpm;
+      "
     healthcheck:
       test: ["CMD", "php-fpm", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   # ----------------------------------------------------------------------------
   # Webserver — Nginx
@@ -67,8 +82,6 @@ services:
     depends_on:
       app:
         condition: service_healthy
-      vite:
-        condition: service_started
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
@@ -87,12 +100,10 @@ services:
       - "${VITE_PORT:-5173}:5173"
     volumes:
       - .:/app
+      - node_modules_data:/app/node_modules
     networks:
       - iot_network
-    depends_on:
-      app:
-        condition: service_healthy
-    command: npm run dev -- --host
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
 
   # ----------------------------------------------------------------------------
   # MySQL — Base de datos relacional
@@ -111,11 +122,11 @@ services:
     ports:
       - "${MYSQL_PORT:-3306}:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 90s
+      retries: 10
+      start_period: 30s
     command: >
       --default-authentication-plugin=mysql_native_password
       --character-set-server=utf8mb4
@@ -163,14 +174,16 @@ services:
       - iot_network
     ports:
       - "${MQTT_PORT:-1883}:1883"
+    # CORRECCIÓN DEFINITIVA: Se suscribe a la versión del broker con un timeout de 1s para validar que responda.
     healthcheck:
-      test: ["CMD", "mosquitto_sub", "-t", "$$SYS/#", "-C", "1", "-i", "healthcheck", "-W", "3"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 # ============================================================================
-# Volúmenes nombrados
+# Volúmenes nombrados (Persistencia de datos compartidos)
 # ============================================================================
 volumes:
   mysql_data:
@@ -183,9 +196,11 @@ volumes:
     driver: local
   storage_data:
     driver: local
+  node_modules_data:
+    driver: local
 
 # ============================================================================
-# Red interna
+# Red interna (Aislamiento de servicios)
 # ============================================================================
 networks:
   iot_network:
