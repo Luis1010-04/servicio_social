@@ -124,13 +124,28 @@ servicio_social/
 
 ## Documentación
 
+### Docker y Despliegue
+
 | Documento | Descripción |
 |-----------|------------|
-| [Instalación](docs/INSTALACION.md) | Guía completa de instalación y configuración del entorno |
-| [Arquitectura](docs/ARQUITECTURA.md) | Diseño del sistema, modelos de datos y patrones de diseño |
-| [API y Rutas](docs/API.md) | Endpoints HTTP, métodos HTTP y permisos |
-| [Manual de Usuario](docs/MANUAL_USUARIO.md) | Guía operativa para usuarios finales y administradores |
-| [Contribución](docs/CONTRIBUCION.md) | Guía para contribuidores al proyecto |
+| [Docker - Inicio Rápido](docs/docker/README.md) | Visión general del stack Docker |
+| [Dockerfile](docs/docker/DOCKERFILE.md) | Análisis del Dockerfile multi-stage |
+| [Docker Compose](docs/docker/DOCKER_COMPOSE.md) | Servicios, redes y volúmenes |
+| [Comandos Docker](docs/docker/COMANDOS.md) | Referencia rápida de comandos |
+| [Variables de Entorno](docs/docker/VARIABLES_ENTORNO.md) | Variables para Docker |
+| [Troubleshooting Docker](docs/docker/TROUBLESHOOTING.md) | Solución de problemas Docker |
+| [Guía de Despliegue](DEPLOY.md) | Instrucciones completas de despliegue |
+
+### Desarrollo
+
+| Documento | Descripción |
+|-----------|------------|
+| [Desarrollo - Inicio Rápido](docs/dev/README.md) | Visión general del proyecto |
+| [Instalación](docs/dev/INSTALACION.md) | Guía completa de instalación local |
+| [Arquitectura](docs/dev/ARQUITECTURA.md) | Diseño del sistema y patrones |
+| [API y Rutas](docs/dev/API.md) | Endpoints HTTP y permisos |
+| [Estructura del Proyecto](docs/dev/ESTRUCTURA.md) | Árbol de directorios |
+| [Contribución](docs/dev/CONTRIBUCION.md) | Guía para contribuidores |
 
 ---
 

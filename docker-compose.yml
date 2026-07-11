@@ -1,0 +1,211 @@
+# ============================================================================
+# docker-compose.yml — IoT_Project
+# Stack completo: Laravel + Nginx + MySQL + InfluxDB + Mosquitto + Vite (React)
+# ============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # App — Laravel 12.x + PHP-FPM
+  # ----------------------------------------------------------------------------
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: iot_app
+    restart: unless-stopped
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-http://localhost}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-iot_project}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-root}
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN:-}
+      - INFLUXDB_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET:-biobit}
+      - INFLUXDB_ORG=${DOCKER_INFLUXDB_INIT_ORG:-iot_project}
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+    volumes:
+      - .:/app
+      - storage_data:/app/storage
+    networks:
+      - iot_network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+      mosquitto:
+        condition: service_healthy
+    # Script defensivo que espera a que el puerto de MySQL realmente responda antes de correr artisan
+    command: >
+      sh -c "
+        echo 'Esperando estabilidad de red en MySQL...';
+        until nc -z -v -w30 mysql 3306; do
+          echo 'Base de datos ocupada o inicializándose... reintentando en 3 segundos...';
+          sleep 3;
+        done;
+        echo 'Conexión a MySQL exitosa.';
+        if [ \"$$RUN_MIGRATIONS\" = \"true\" ]; then 
+          echo 'Corriendo migraciones...';
+          php artisan migrate --force; 
+        fi;
+        php-fpm;
+      "
+    healthcheck:
+      test: ["CMD", "php-fpm", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ----------------------------------------------------------------------------
+  # Webserver — Nginx
+  # ----------------------------------------------------------------------------
+  webserver:
+    image: nginx:alpine
+    container_name: iot_webserver
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - .:/app:ro
+      - storage_data:/app/storage:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - iot_network
+    depends_on:
+      app:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ----------------------------------------------------------------------------
+  # Vite — Frontend (React + Tailwind) — CORREGIDO PARA EVITAR BLOQUEOS EN WINDOWS
+  # ----------------------------------------------------------------------------
+  vite:
+    image: node:22-alpine
+    container_name: iot_vite
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      # Montamos carpetas de código y configs para asegurar el Hot-Reload en desarrollo
+      - ./resources:/app/resources
+      - ./tailwind.config.js:/app/tailwind.config.js
+      - ./vite.config.js:/app/vite.config.js
+      # Montamos la raíz del proyecto en modo lectura en otra ruta para extraer el package.json sin interferencias
+      - .:/src:ro
+    networks:
+      - iot_network
+    # Truco maestro: Pasamos package.json al disco virtual interno antes de ejecutar la instalación nativa
+    command: sh -c "cp /src/package.json /app/package.json && npm install && npm run dev -- --host 0.0.0.0"
+
+  # ----------------------------------------------------------------------------
+  # MySQL — Base de datos relacional
+  # ----------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: iot_mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-root}
+      - MYSQL_DATABASE=${DB_DATABASE:-iot_project}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - iot_network
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+  # ----------------------------------------------------------------------------
+  # InfluxDB — Base de datos temporal (telemetría IoT)
+  # ----------------------------------------------------------------------------
+  influxdb:
+    image: influxdb:2.7
+    container_name: iot_influxdb
+    restart: unless-stopped
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${DOCKER_INFLUXDB_INIT_USERNAME:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${DOCKER_INFLUXDB_INIT_PASSWORD:-changeme}
+      - DOCKER_INFLUXDB_INIT_ORG=${DOCKER_INFLUXDB_INIT_ORG:-iot_project}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${DOCKER_INFLUXDB_INIT_BUCKET:-biobit}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN:-changeme_generate_a_real_token}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - iot_network
+    ports:
+      - "${INFLUXDB_PORT:-8086}:8086"
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ----------------------------------------------------------------------------
+  # Mosquitto — Broker MQTT
+  # ----------------------------------------------------------------------------
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: iot_mosquitto
+    restart: unless-stopped
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+      - ./docker/mosquitto/config:/mosquitto/config:ro
+    networks:
+      - iot_network
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/broker/version' -C 1 -W 1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+# ============================================================================
+# Volúmenes nombrados (Persistencia de datos compartidos)
+# ============================================================================
+volumes:
+  mysql_data:
+    driver: local
+  influxdb_data:
+    driver: local
+  mosquitto_data:
+    driver: local
+  mosquitto_log:
+    driver: local
+  storage_data:
+    driver: local
+  node_modules_data:
+    driver: local
+
+# ============================================================================
+# Red interna (Aislamiento de servicios)
+# ============================================================================
+networks:
+  iot_network:
+    driver: bridge
